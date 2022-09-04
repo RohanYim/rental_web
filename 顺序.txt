@@ -1,5 +1,0 @@
-1. startapp
-2. 写models
-3. 写admin
-4. 在setting中注册app
-5. 同步数据库 makemigration
