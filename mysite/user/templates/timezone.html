@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+<!--页面标题-->
+{% block title %}
+    我的网站|个人资料
+{% endblock %}
+
+{% block header_extend %}{% endblock %}
+
+{% block nav_home_active %}active{% endblock %}
+
+<!--页面内容-->
+{% block content %}
+    <!-- action为空表示提交给当前页面 -->
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1">
+                {% if user.is_authenticated %}
+                    <h2>{{ user.username}}
+                    </h2>
+                    <ul style=list-style:none;>
+                        <!-- 如果已连接discord -->
+                        {% if user.profile.connected %}
+                            <li>
+                                Nickname：{{ user.profile.discordname }} <a href="{% url 'disconnect' %}">Disconnect</a>
+                            </li>
+                            <li>
+                                ID：{{ user.profile.discordid }}
+                            </li>
+                        {% else %}
+                            {% if messages %}
+                                <script>
+                                    {% for msg in messages %}
+                                        alert('{{ msg.message }}');
+                                    {% endfor %} 
+                                </script> 
+                            {% endif %}
+                            <li>
+                                Discord ：<a href="{% url 'oauth2_login' %}">Connect to Discord</a>
+                            </li>
+                        {% endif %}
+                        <form id="timezone_form" action="" method="POST" url="{% url 'timezone' %}">
+                            {% csrf_token %}
+                            {% for field in timezone_form %}
+                                {{ field }}
+                            {% endfor %}
+                            <button name="submit">Submit</button>
+                        </form>
+                        <li>
+                            邮箱：{% if user.email %}{{ user.email }} {% else %} 未绑定邮箱 <a href="#">绑定邮箱</a> {% endif %}
+                        </li>
+                        <li>
+                            上一次登录时间：{{ user.last_login|date:"Y-m-d H:n:s" }}
+                        </li>
+                        <li>
+                            <a href="#">修改密码</a>
+                        </li>
+                    </ul>
+                {% else %}
+                    <span>未登录，跳转到首页。。。</span>
+                    <script text='text/javascript'>
+                        window.location.href = '/'
+                    </script>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}    
+
+

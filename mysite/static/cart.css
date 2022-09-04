@@ -1,0 +1,11 @@
+img#alipay{
+    width: 10%;
+    cursor: pointer;
+    position: relative;
+    left: 85%;
+}
+
+i#delete-cart{
+    font-size: 1.3rem; 
+    color: cornflowerblue;
+}

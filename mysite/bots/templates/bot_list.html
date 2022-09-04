@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+<!--页面标题-->
+{% block title %}
+    Bots
+{% endblock %}
+
+{% block nav_botlist_active %}active{% endblock %}
+
+{% load static %}
+{% block header_extend %}
+    <link rel="stylesheet" href="{% static 'bot.css' %}">
+{% endblock %}
+
+<!--页面内容-->
+{% block content %}
+    <div class="container">
+        <div class="row">
+            {% for bot in all_bots %}
+                <div class="col-md-2">
+                    <a href="{% url 'bot_detail' bot.name %}">
+                        <img class="img-rounded" src="{{ bot.img_url }}" alt="{{ bot.name }}">
+                    </a>
+                </div>
+                <div class="col-md-1">
+                    <h2 class="bot_name"><a href="{% url 'bot_detail' bot.name %}">{{ bot.name }}</a></h2>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+

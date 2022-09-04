@@ -1,0 +1,262 @@
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div id="buttonrow" class="row">
+                                <div class="col-sm-12">
+                                    <button id="verify" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bidding-modal">新增求购</button>
+                                </div>
+                            </div>
+                        
+                            <div class="modal fade" id="bidding-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title" id="exampleModalLabel">新增求购</h4>
+                                            <button id="close" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="" class="listing-form">
+                                                <div class="select-box">
+                                                    <input type="text" id="listing-bot" style="display: none;">
+                                                    <div class="select-box__current" tabindex="1">
+                                                        <div class="select-box__value">
+                                                            <input class="select-box__input" type="radio" id="0-listing" value="1" name="listing" checked="checked"/>
+                                                            <p class="select-box__input-text">请选择一个bot</p>
+                                                        </div>
+                                                        {% for i in havebot %}
+                                                            <div class="select-box__value">
+                                                                <input class="select-box__input" type="radio" id="{{ i.bot }}-listing" value="1" name="listing"/>
+                                                                <p class="select-box__input-text"><img id="select_img" alt="" src="{{ i.img_url }}">{{ i.bot }}</p>
+                                                            </div>
+                                                        {% endfor %}
+                                                        <img class="select-box__icon" src="http://cdn.onlinewebfonts.com/svg/img_295694.svg" alt="Arrow Icon" aria-hidden="true"/>
+                                                    </div>
+                                                    
+                                                    <ul class="select-box__list">
+                                                        <li>
+                                                            <label class="select-box__option" for="0-listing" aria-hidden="aria-hidden" onclick="listingbot(this)">请选择一个bot</label>
+                                                        </li>
+                                                        {% for i in havebot %}
+                                                            <li>
+                                                                <label class="select-box__option" for="{{ i.bot }}-listing" aria-hidden="aria-hidden" onclick="listingbot(this)"><img id="select_img" alt="" src="{{ i.img_url }}">{{ i.bot }}</label>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                <hr>
+                                                <p>求购类型</p>
+                                                <div class="col-sm-9 text-secondary">
+                                                    <span id="radio"><input type="radio" name="rentaltype" id="generalradio" value="General Rental" onchange="GeneralTypeChange()"><label id="general-label" for="generalradio" style="margin-bottom: 10px;color: black;">普通租赁</label></span>
+                                                    <span id="radio"><input type="radio" name="rentaltype" id="customradio" value="Custom Rental" onchange="CustomTypeChange()"><label id="custom-label" for="customradio" style="margin-bottom: 10px;color: black;">自定义租赁</label></span>
+                                                </div>
+                                                <p>时间</p>
+                                                <div class="generallistingform">
+                                                    <div class="row">
+                                                        <input type="text" id="general-start">
+                                                        <input type="text" id="general-end">
+                                                    </div>
+                                                </div>
+                                                <div class="customlistingform" style="display: none;">
+                                                    <div class="row">
+                                                        <input type="text" id="custom-start">
+                                                        <input type="text" id="custom-end">
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <style type="text/css">
+                                                    input::-webkit-outer-spin-button,
+                                                    input::-webkit-inner-spin-button {
+                                                        -webkit-appearance: none;
+                                                    }
+                                                    input[type="number"] {
+                                                        -moz-appearance: textfield;
+                                                    }
+                                                </style>
+                                                <p>价格</p>
+                                                <div class="row" style="width: 100%;">
+                                                    <div class="col">
+                                                        <div class="row">
+                                                            <span style="width: 20%;position: relative;top: 5px;">￥</span>
+                                                            <input style="width: 80%;" class="price" type="number" id="rmb" placeholder="RMB" onkeyup="num(this)">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col text-center">
+                                                        <h2><i id="exchange" class="bi bi-currency-exchange"></i></h2>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="row">
+                                                            <span style="width: 20%;position: relative;top: 5px;">$</span>
+                                                            <input style="width: 80%;" class="price" type="number" id="usd" placeholder="USD" onkeyup="num(this)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" id="addlisting" class="btn btn-primary" onclick="addlisting()">提交</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col">
+                                <div class="card shadow">
+                                    <div class="card-header border-0">
+                                        <h3 class="mb-0">Search Bar</h3>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="buyer" class="table align-items-center table-flush">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Bot</th>
+                                                    <th scope="col">租赁方式</th>
+                                                    <th scope="col">开始时间</th>
+                                                    <th scope="col">结束时间</th>
+                                                    <th scope="col">价格</th>
+                                                    <th scope="col">状态</th>
+                                                    <th scope="col">动作</th>
+                                                    <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for bot in bidding %}
+                                                    <tr>
+                                                        <td id="num_my_listing" scope="row">{{ bot.pk }}</th>
+                                                        <th id="bot" scope="row">
+                                                            
+                                                            <div class="media align-items-center">
+                                                                <a href="#" class="avatar rounded-circle mr-3">
+                                                                    <img alt="Image placeholder" src="{{ bot.img_url }}">
+                                                                </a>
+                                                                <div class="media-body">
+                                                                    <span class="mb-0 text-sm" >{{ bot.bot }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </th>
+                                                        <td id="listing_type">
+                                                            {% if bot.listing_type == 'General Rental'%}
+                                                                <span>普通租赁</span>
+                                                            {% elif bot.listing_type == 'Custom Rental'%}
+                                                                <span>自定义租赁</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td id="start_time">
+                                                            <span>{{ bot.start_time }}</span>
+                                                        </td>
+                                                        <td id="end_time">
+                                                            <span>{{ bot.end_time }}</span>
+                                                        </td>
+                                                        <td id="price">
+                                                            <span>￥{{ bot.rmb_price}}(${{ bot.usd_price }})</span>
+                                                        </td>
+                                                        <td id="status">
+                                                            {{ listing.payment_status }}
+                                                        </td>
+                                                        <td id="edit">
+                                                            {% if bot.status == 'Show' %}
+                                                                <i id="edit" class="bi bi-pencil-fill" onclick="edit(this)"></i>
+                                                                <div class="modal fade" id="edit-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                                                    <div class="modal-dialog">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h4 class="modal-title" id="exampleModalLabel">修改列出</h4>
+                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <div class="row">
+                                                                                    <img id="edit" src="{{ bot.img_url }}">
+                                                                                    <div id="botinmodal"></div>
+                                                                                </div>
+                                                                                <div id="keyinmodal"></div>
+                                                                                <div id="pkinmodal" style="display: none;"></div>
+                                                                                <hr>
+                                                                                <p>出租类型</p>
+                                                                                <span class="edit-general" id="radio"><input type="radio" name="{{ bot.pk }}edit_rentaltype" id="{{ bot.pk }}edit_generalradio" value="General Rental" onchange="GeneralTypeChangeEdit()"><label id="edit_general-label" for="{{ bot.pk }}edit_generalradio" style="margin-bottom: 10px;color: black;">普通租赁</label></span>
+                                                                                <span class="edit-custom" id="radio"><input type="radio" name="{{ bot.pk }}edit_rentaltype" id="{{ bot.pk }}edit_customradio" value="Custom Rental" onchange="CustomTypeChangeEdit()"><label id="edit_custom-label" for="{{ bot.pk }}edit_customradio" style="margin-bottom: 10px;color: black;">自定义租赁</label></span>
+                                                                                <hr>
+                                                                                <p>时间</p>
+                                                                                <div class="generaleditingform">
+                                                                                    <div class="row">
+                                                                                        <input type="text" id="edit-general-start">
+                                                                                        <input type="text" id="edit-general-end">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="customeditingform" style="display: none;">
+                                                                                    <div class="row">
+                                                                                        <input type="text" id="edit-custom-start">
+                                                                                        <input type="text" id="edit-custom-end">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <hr>
+                                                                                <style type="text/css">
+                                                                                    input::-webkit-outer-spin-button,
+                                                                                    input::-webkit-inner-spin-button {
+                                                                                        -webkit-appearance: none;
+                                                                                    }
+                                                                                    input[type="number"] {
+                                                                                        -moz-appearance: textfield;
+                                                                                    }
+                                                                                </style>
+                                                                                <p>价格</p>
+                                                                                <div class="row" style="width: 100%;">
+                                                                                    <div id="rmbcol" class="col">
+                                                                                        <div class="row">
+                                                                                            <span style="width: 20%;position: relative;top: 5px;">￥</span>
+                                                                                            <input style="width: 80%;" class="price" type="number" id="edit_rmb" placeholder="RMB" onkeyup="num(this)">
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="col text-center">
+                                                                                        <h2><i id="exchange" class="bi bi-currency-exchange"></i></h2>
+                                                                                    </div>
+                                                                                    <div id="usdcol" class="col">
+                                                                                        <div class="row">
+                                                                                            <span style="width: 20%;position: relative;top: 5px;">$</span>
+                                                                                            <input style="width: 80%;" class="price" type="number" id="edit_usd" placeholder="USD" onkeyup="num(this)">
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                            
+                                                                            </div>
+                                                                            <div class="modal-footer">
+                                                                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                                                                    <button id="editbutton" type="button" class="btn btn-primary" onclick="submit_editing(this)">修改</button>
+                                                                                </div>
+                                                                            </div>
+                                            
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {% if bot.status == 'Show' %}
+                                                                <i id="delete" class="bi bi-x-lg" onclick="passing_listing_pk(this)"></i>
+                                                            {% endif %}
+                                                            <div class="modal fade" id="my_confirmdelete-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                                                <div class="modal-dialog modal-confirm">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <i id="alert" class="bi bi-exclamation-triangle">警告</i>
+                                                                        </div>
+                                                                        <div id="listingpk" class="modal-body">
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button id="confirmdelete" type="button" class="btn btn-primary" onclick="delete_my_listing(this)">Comfirm</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="card-footer py-4">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>

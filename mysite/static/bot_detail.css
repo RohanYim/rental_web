@@ -1,0 +1,38 @@
+div#header_row{
+    height: 250px;
+    background-image:url('https://i.imgur.com/1lOMwT8.jpg');
+    background-repeat:no-repeat;
+    background-size: 100% 100%;
+}
+
+div#bot_header{
+    position: absolute;
+    top: 39%;
+    left: 5%;
+    border: solid white 3px;
+    max-width: 100%;
+}
+
+h1#bot_name{
+    position: absolute;
+    top: 38%;
+    left: 15%;
+    color: white;
+}
+
+button#add_button{
+    height: 4em;
+    width: 8em;
+    font-weight: bold;
+    position: absolute;
+    top:0%;
+    left: 0%;
+}
+
+div#searchcard{
+    position: relative;
+    top: 5em;
+    margin:0 auto;
+    width: 40rem;
+}
+

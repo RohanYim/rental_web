@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+
+<!--页面标题-->
+{% block title %}
+    我的网站|个人资料
+{% endblock %}
+
+{% block header_extend %}
+{% endblock %}
+
+{% block nav_home_active %}active{% endblock %}
+
+<!--页面内容-->
+{% block content %}
+    <!-- action为空表示提交给当前页面 -->
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1">
+                {% if user.is_authenticated %}
+                    <h2>Hello, {{ user.username}}!</h2>
+                    <ul id='myTabs' class="nav nav-tabs justify-content-center">
+                        <li class="nav-item"><a class='nav-link active' href="#processing" data-bs-toggle="tab">Processing</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#failed" data-bs-toggle="tab">Failed</a></li>
+                        <li class="nav-item" ><a class="nav-link" href="#succeed" data-bs-toggle="tab">Succeed</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="processing">
+                            <table id='bot_table' class="table">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">User</th>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Bot</th>
+                                        <th scope="col">Key</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for data in all_data %}
+                                        {% if data.status == 'Processing Verification' %}
+                                        <tr>
+                                            <td id="user">{{ data.user_id }}</td>
+                                            <td id="ID">{{ data.user_discord }}</td>
+                                            <td id="bot">{{ data.bot }}</td>
+                                            <td id="key">{{ data.key }}</td>
+                                            <td id="status">{{ data.status }}</td>
+                                            {% if data.need_reset == True %}
+                                                <th scope="col"><a class="btn btn-primary" href="#" onclick="cancel_reset(this);return false;">Waiting for reset, click to cancel</a></th>
+                                            {% else %}
+                                                <th scope="col"><a class="btn btn-primary" href="#" onclick="request_reset(this);return false;">Request Reset</a></th>
+                                            {% endif %}
+                                            <th scope="col"><a class="btn btn-primary" href="#" onclick="pass_verify(this);return false;">Pass</a></th>
+                                            <th scope="col"><a class="btn btn-danger" href="#" onclick="fail_verify(this);return false;">Fail</a></th>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade" id="succeed">
+                            <table id='bot_table' class="table">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">User</th>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Bot</th>
+                                        <th scope="col">Key</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for data in all_data %}
+                                        {% if data.status == 'Ready to be listed' %}
+                                        <tr>
+                                            <td id="user">{{ data.user_id }}</td>
+                                            <td id="ID">{{ data.user_discord }}</td>
+                                            <td id="bot">{{ data.bot }}</td>
+                                            <td id="key">{{ data.key }}</td>
+                                            <td id="status">{{ data.status }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade" id="failed">
+                            <table id='bot_table' class="table">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">User</th>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Bot</th>
+                                        <th scope="col">Key</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for data in all_data %}
+                                        {% if data.status == 'Not Verified' %}
+                                        <tr>
+                                            <td id="user">{{ data.user_id }}</td>
+                                            <td id="ID">{{ data.user_discord }}</td>
+                                            <td id="bot">{{ data.bot }}</td>
+                                            <td id="key">{{ data.key }}</td>
+                                            <td id="status">{{ data.status }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                      </div>
+                {% else %}
+                    <span>未登录，跳转到首页。。。</span>
+                    <script text='text/javascript'>
+                        window.location.href = '/'
+                    </script>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}    
+
+
+{% block script_expend %}
+    <script>
+        function pass_verify(obj){
+            var tr=$(obj).parent().parent();
+            var user = tr.children("td#user").text();
+            var ID = tr.children("td#ID").text();
+            var bot = tr.children("td#bot").text();
+            var key = tr.children("td#key").text();
+
+            $.ajax({
+                url : "http://localhost:8000/user/verify/",
+                type : 'POST',
+                data : {
+                    'status': 'pass',
+                    'user': user,
+                    'ID': ID,
+                    'bot': bot,
+                    'key': key,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    console.log(data);
+                    if(data.status == "SUCCESS"){
+                        location.reload();
+                    }
+                },
+                error : function(xhr){
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function fail_verify(obj){
+            var tr=$(obj).parent().parent();
+            var user = tr.children("td#user").text();
+            var ID = tr.children("td#ID").text();
+            var bot = tr.children("td#bot").text();
+            var key = tr.children("td#key").text();
+
+            $.ajax({
+                url : "http://localhost:8000/user/verify/",
+                type : 'POST',
+                data : {
+                    'status': 'fail',
+                    'user': user,
+                    'ID': ID,
+                    'bot': bot,
+                    'key': key,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    console.log(data);
+                    if(data.status == "SUCCESS"){
+                        location.reload();
+                    }
+                },
+                error : function(xhr){
+                    console.log(xhr);
+                }
+            });
+        }
+
+    function request_reset(obj){
+        var tr=$(obj).parent().parent();
+        var user = tr.children("td#user").text();
+        var ID = tr.children("td#ID").text();
+        var bot = tr.children("td#bot").text();
+        var key = tr.children("td#key").text();
+
+        $.ajax({
+            url : "http://localhost:8000/user/verify/",
+            type : 'POST',
+            data : {
+                'flag': 'request_reset',
+                'user': user,
+                'ID': ID,
+                'bot': bot,
+                'key': key,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            success : function(data){
+                console.log(data);
+                if(data.status == "SUCCESS_REQUEST_RESET"){
+                    location.reload();
+                }
+            },
+            error : function(xhr){
+                console.log(xhr);
+            }
+        });
+    }
+
+    function cancel_reset(obj){
+        var tr=$(obj).parent().parent();
+        var user = tr.children("td#user").text();
+        var ID = tr.children("td#ID").text();
+        var bot = tr.children("td#bot").text();
+        var key = tr.children("td#key").text();
+
+        $.ajax({
+            url : "http://localhost:8000/user/verify/",
+            type : 'POST',
+            data : {
+                'flag': 'cancel_reset',
+                'user': user,
+                'ID': ID,
+                'bot': bot,
+                'key': key,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            success : function(data){
+                console.log(data);
+                if(data.status == "SUCCESS_CANCEL_RESET"){
+                    location.reload();
+                }
+            },
+            error : function(xhr){
+                console.log(xhr);
+            }
+        });
+    }
+    </script>
+{% endblock %}
+
+

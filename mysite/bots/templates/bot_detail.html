@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+<!--页面标题-->
+{% block title %}
+    Bots
+{% endblock %}
+
+{% block nav_botlist_active %}active{% endblock %}
+
+{% load static %}
+{% block header_extend %}
+    {{ searchform.media.css }}
+    <link rel="stylesheet" href="{% static 'bot_detail.css' %}">
+    {{ searchform.media.js }}
+{% endblock %}
+
+<!--页面内容-->
+{% block content %}
+    <div class="container">
+        <div id="header_row" class="row">
+            {% for bot in bot_info %}
+                <div class="col-md-2">
+                </div>
+            {% endfor %}
+        </div>
+        <div id="rental-row" class="row">
+            <ul id='rental-tab' class="nav nav-tabs justify-content-center">
+                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general-rental">General Rental</a></li>
+                <li class="nav-item" ><a class="nav-link" data-bs-toggle="tab" href="#custom-rental">Customer Reantal</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="general-rental">
+                    <div id="searchcard" class="card shadow justify-content-center">
+                        <div class="card-body">
+                            <form id="searchform" action="" method="POST">
+                                {% csrf_token %}
+                                {{ searchform.as_p }}
+                                <input type="submit" value="Search" class="btn btn-primary">
+                            </form>
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a type="button" class="btn btn-primary" href="{% url 'listing' bot %}">Search All</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="custom-rental">
+                    bbb
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block script_expend %}
+{% endblock %}
+

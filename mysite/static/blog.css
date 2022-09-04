@@ -1,0 +1,42 @@
+ul.blog_types{
+    list-style-type: none;
+}
+div.blog:not(:last-child){
+    margin-bottom: 2em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid #eee;
+}
+div.blog h3{
+    margin-top: 0.5em;
+}
+div.blog p.blog-info{
+    margin-bottom: 0;
+}
+
+ul.blog-info-describe{
+    list-style-type: none;
+    margin-bottom: 2em;
+}
+ul.blog-info-describe li{
+    display: inline-block;
+    margin-right: 2em;
+}
+div.blog-content-detail{
+    text-indent: 2em;
+}
+div.paginator{
+    text-align: center;
+}
+div.blog-more{
+    margin-top: 1em;
+}
+ul{
+    list-style-type: none!important;
+}
+div.comment-area{
+    margin-top: 2em;
+}
+h3.comment-area-title{
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.4em;
+}

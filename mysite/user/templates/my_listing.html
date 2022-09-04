@@ -1,0 +1,739 @@
+{% extends 'base.html' %}
+{% load static %}
+<!--页面标题-->
+{% block title %}
+    我的网站|个人资料
+{% endblock %}
+
+{% block header_extend %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'amylisting.css' %}">
+{% endblock %}
+
+{% block nav_home_active %}active{% endblock %}
+
+<!--页面内容-->
+{% block content %}
+    <!-- action为空表示提交给当前页面 -->
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1">
+                {% if user.is_authenticated %}
+                    <h2>Hello, {{ user.username}}!</h2>
+                    <button id="addlisting" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#listing-modal">Add Listing</button>
+                    <div class="modal fade" id="listing-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title" id="exampleModalLabel">Add Listing</h4>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="" class="listing-form">
+                                        <select id='userbot' onchange="botChange()"> 
+                                            <option id="default-option" value="default">Please select a bot</option>
+                                            {% for bot in havebot %} 
+                                                <option value='{{ bot.bot }}'>{{ bot.bot }}</option> 
+                                            {% endfor %} 
+                                        </select>
+                                        <a href="{% url 'user_info' %}">Not find your bot? Add here!</a>
+                                        <hr>
+                                        <div id="userkeydiv">
+                                            <p>Please select the bot you want to list</p>
+                                        </div>
+                                        <hr>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="generalradio" onchange="GeneralTypeChange()"> 
+                                            <label id="general-label" class="form-check-label" for="flexRadioDefault1">
+                                                General Rental
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="customradio" onchange="CustomTypeChange()">
+                                            <label id="custom-label" for="flexRadioDefault2">
+                                                Custom Rental
+                                            </label>
+                                        </div>
+                                        <hr>
+                                        <div class="generallistingform" style="display: none;">
+                                            <input type="text" id="general-start">
+                                            <input type="text" id="general-end">
+                                        </div>
+                                        <div class="customlistingform" style="display: none;">
+                                            <input type="text" id="custom-start">
+                                            <input type="text" id="custom-end">
+                                        </div>
+                                        <hr>
+                                        <style type="text/css">
+                                            input::-webkit-outer-spin-button,
+                                            input::-webkit-inner-spin-button {
+                                                -webkit-appearance: none;
+                                            }
+                                            input[type="number"] {
+                                                -moz-appearance: textfield;
+                                            }
+                                        </style>
+                                        <p>Price</p>
+    
+                                        <div class="row">
+                                            <div class="col">
+                                                <input type="number" id="rmb" placeholder="RMB" onkeyup="num(this)">
+                                            </div>
+                                            <div class="col">
+                                                <h2>&harr;</h2>
+                                            </div>
+                                            <div class="col">
+                                                <input type="number" id="usd" placeholder="USD" onkeyup="num(this)">
+                                            </div>
+                                        </div>
+                                    </form>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button type="button" class="btn btn-primary" onclick="submit_listing()">List</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <ul id='RentalTabs' class="nav nav-tabs justify-content-center">
+                        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#listing">Listing</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#bid">Bids</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#active">Active Rental</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#past">Past Rental</a></li>
+                        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#upcoming">Upcoming Rental</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="listing">
+                            <div id="listingcard" class="card shadow justify-content-center">
+                                <div class="card-body">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                              <th scope="col">#Listing</th>
+                                              <th scope="col">Bot</th>
+                                              <th scope="col">Key</th>
+                                              <th scope="col">Key Nickname</th>
+                                              <th scope="col">Listing Type</th>
+                                              <th scope="col">Start Time</th>
+                                              <th scope="col">End Time</th>
+                                              <th scope="col">Price</th>
+                                              <th scope="col">Actions</th>
+                                              <th scope="col"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for listing in botlisting %}
+                                                <tr>
+                                                    <td id="num_listing">{{ listing.pk }}</td>
+                                                    <td id="bot">{{ listing.bot }}</td>
+                                                    <td id="key">{{ listing.key }}</td>
+                                                    <td id="keynickname">{{ listing.key_nickname }}</td>
+                                                    <td id="type">{{ listing.listing_type }}</td>
+                                                    <td id="start_time">{{ listing.start_time }}</td>
+                                                    <td id="end_time">{{ listing.end_time }}</td>
+                                                    <td id="price"><div id="price">{{ listing.price }}</div></td>
+                                                    <td id="delete">
+                                                        <i class="bi bi-x-lg" style="font-size: 1.3rem; color: cornflowerblue;" onclick="passingpk(this)"></i>
+                                                        <div class="modal fade" id="confirmdelete-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        Warning
+                                                                    </div>
+                                                                    <div id="modalpk" class="modal-body">
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-primary" onclick="deletelisting(this)">Comfirm</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td id="edit">
+                                                        <i class="bi bi-pencil-fill" style="font-size: 1.3rem; color: cornflowerblue;" onclick="edit(this)"></i>
+                                                        <div class="modal fade" id="edit-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h4 class="modal-title" id="exampleModalLabel">Edit Listing</h4>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <div id="botinmodal"></div>
+                                                                        <div id="keyinmodal"></div>
+                                                                        <div id="pkinmodal" style="display: none;"></div>
+                                                                        <hr>
+                                                                        <div class="general-form-check">
+                                                                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="generalradio" onchange="GeneralTypeChangeEdit()"> 
+                                                                            <label id="general-label" class="form-check-label" for="flexRadioDefault1">
+                                                                                General Rental
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="custom-form-check">
+                                                                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="customradio" onchange="CustomTypeChangeEdit()">
+                                                                            <label id="custom-label" for="flexRadioDefault2">
+                                                                                Custom Rental
+                                                                            </label>
+                                                                        </div>
+                                                                        <hr>
+                                                                        <div class="generaleditingform" style="display: none;">
+                                                                            <input type="text" id="edit-general-start">
+                                                                            <input type="text" id="edit-general-end">
+                                                                        </div>
+                                                                        <div class="customeditingform" style="display: none;">
+                                                                            <input type="text" id="edit-custom-start">
+                                                                            <input type="text" id="edit-custom-end">
+                                                                        </div>
+                                                                        <hr>
+                                                                        <style type="text/css">
+                                                                            input::-webkit-outer-spin-button,
+                                                                            input::-webkit-inner-spin-button {
+                                                                                -webkit-appearance: none;
+                                                                            }
+                                                                            input[type="number"] {
+                                                                                -moz-appearance: textfield;
+                                                                            }
+                                                                        </style>
+                                                                        <p>Price</p>
+                                    
+                                                                        <div class="row">
+                                                                            <div class="col" id="rmbcol">
+                                                                                <input type="number" id="rmb" placeholder="RMB" onkeyup="num(this)">
+                                                                            </div>
+                                                                            <div class="col">
+                                                                                <h2>&harr;</h2>
+                                                                            </div>
+                                                                            <div class="col" id="usdcol">
+                                                                                <input type="number" id="usd" placeholder="USD" onkeyup="num(this)">
+                                                                            </div>
+                                                                        </div>
+                                    
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                                                            <button type="button" class="btn btn-primary" onclick="submit_editing(this)">Edit</button>
+                                                                        </div>
+                                                                    </div>
+                                    
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="bid">
+                            <div class="tab-pane fade show active" id="bid">
+                                <div id="pastcard" class="card shadow justify-content-center">
+                                    <div class="card-body">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                  <th scope="col">#Bidding</th>
+                                                  <th scope="col">Bot</th>
+                                                  <th scope="col">Key</th>
+                                                  <th scope="col">Key Nickname</th>
+                                                  <th scope="col">Start Time</th>
+                                                  <th scope="col">End Time</th>
+                                                  <th scope="col">Price</th>
+                                                  <th scope="col">Status</th>
+                                                  <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for listing in bid_order %}
+                                                    <tr>
+                                                        <td id="num_listing">{{ listing.bid_pk.pk }}</td>
+                                                        <td id="bot">{{ listing.bid_pk.bot }}</td>
+                                                        <td id="key">{{ listing.key }}</td>
+                                                        <td id="keynickname">{{ listing.key_nickname }}</td>
+                                                        <td id="start_time">{{ listing.bid_pk.start_time }}</td>
+                                                        <td id="end_time">{{ listing.bid_pk.end_time }}</td>
+                                                        <td id="price">{{ listing.bid_pk.price }}</td>
+                                                        <td id="key">{{ listing.status }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="active">
+                            <div class="tab-pane fade show active" id="active">
+                                <div id="activecard" class="card shadow justify-content-center">
+                                    <div class="card-body">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                  <th scope="col">#Listing</th>
+                                                  <th scope="col">Type</th>
+                                                  <th scope="col">Bot</th>
+                                                  <th scope="col">Key</th>
+                                                  <th scope="col">Key Nickname</th>
+                                                  <th scope="col">Listing Type</th>
+                                                  <th scope="col">Start Time</th>
+                                                  <th scope="col">End Time</th>
+                                                  <th scope="col">Price</th>
+                                                  <th scope="col">Actions</th>
+                                                  <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for listing,type in active_rental %}
+                                                    <tr>
+                                                        <td id="num_listing">{{ listing.pk }}</td>
+                                                        <td id="buy_type">{{ type }}</td>
+                                                        <td id="bot">{{ listing.bot }}</td>
+                                                        <td id="key">{{ listing.key }}</td>
+                                                        <td id="keynickname">{{ listing.key_nickname }}</td>
+                                                        <td id="type">{{ listing.listing_type }}</td>
+                                                        <td id="start_time">{{ listing.start_time }}</td>
+                                                        <td id="end_time">{{ listing.end_time }}</td>
+                                                        <td id="price">{{ listing.price }}</td>
+                                                        <td id="reset_type" style="display: none;">{{ listing.keyreset_status }}</td>
+                                                        {% if listing.keyreset_status == 'Waiting for reset' %}
+                                                            <td>{{ listing.keyreset_time }}</td>
+                                                            <td id="reset">
+                                                                <button id="comfirm-reset" type="button" class="btn btn-primary" onclick="comfirm_reset(this)">Comfirm Reset</button>
+                                                            </td>
+                                                        {% endif %}
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="past">
+                            <div class="tab-pane fade show active" id="past">
+                                <div id="pastcard" class="card shadow justify-content-center">
+                                    <div class="card-body">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                  <th scope="col">#Listing</th>
+                                                  <th scope="col">Bot</th>
+                                                  <th scope="col">Key</th>
+                                                  <th scope="col">Key Nickname</th>
+                                                  <th scope="col">Listing Type</th>
+                                                  <th scope="col">Start Time</th>
+                                                  <th scope="col">End Time</th>
+                                                  <th scope="col">Price</th>
+                                                  <th scope="col">Actions</th>
+                                                  <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for listing,type in past_rental %}
+                                                    <tr>
+                                                        <td id="num_listing">{{ listing.pk }}</td>
+                                                        <td id="bot">{{ listing.bot }}</td>
+                                                        <td id="key">{{ listing.key }}</td>
+                                                        <td id="keynickname">{{ listing.key_nickname }}</td>
+                                                        <td id="type">{{ listing.listing_type }}</td>
+                                                        <td id="start_time">{{ listing.start_time }}</td>
+                                                        <td id="end_time">{{ listing.end_time }}</td>
+                                                        <td id="price">{{ listing.price }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="upcoming">
+                            <div class="tab-pane fade show active" id="upcoming">
+                                <div id="upcomingcard" class="card shadow justify-content-center">
+                                    <div class="card-body">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                  <th scope="col">#Listing</th>
+                                                  <th scope="col">Bot</th>
+                                                  <th scope="col">Key</th>
+                                                  <th scope="col">Key Nickname</th>
+                                                  <th scope="col">Listing Type</th>
+                                                  <th scope="col">Start Time</th>
+                                                  <th scope="col">End Time</th>
+                                                  <th scope="col">Price</th>
+                                                  <th scope="col">Actions</th>
+                                                  <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for listing,type in upcoming_rental %}
+                                                    <tr>
+                                                        <td id="num_listing">{{ listing.pk }}</td>
+                                                        <td id="bot">{{ listing.bot }}</td>
+                                                        <td id="key">{{ listing.key }}</td>
+                                                        <td id="keynickname">{{ listing.key_nickname }}</td>
+                                                        <td id="type">{{ listing.listing_type }}</td>
+                                                        <td id="start_time">{{ listing.start_time }}</td>
+                                                        <td id="end_time">{{ listing.end_time }}</td>
+                                                        <td id="price">{{ listing.price }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                      </div>
+                {% else %}
+                    <span>未登录，跳转到首页。。。</span>
+                    <script text='text/javascript'>
+                        window.location.href = '/'
+                    </script>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}    
+
+{% block script_expend %}
+    <script type="text/javascript">
+        function botChange(){
+            var userbot=$("#userbot option:selected").text(); 
+            $.ajax({
+                url : "http://localhost:8000/user/listing/",
+                type : 'POST',
+                data : {
+                    'flag' : 'step1',
+                    'userbot' : userbot,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    var html = '';
+                    var keys = eval("(" + data + ")");
+                    if(keys.length == 0){
+                        $("#userkey").hide();
+                        html +="<a id=\"nokeys\" href=\"{% url 'user_info' %}\">Request key verification here</a>";
+                        $("#userkeydiv").html(html);
+                    }
+                    else{
+                        $("#nokeys").hide();
+                        html += "<select id='userkey'></select>"
+                        $("#userkeydiv").html(html);
+                        html = ''
+                        for(var i=0;i<keys.length;i++){   
+                            var ls = keys[i]; 
+                            html +="<option> "+ls.fields.key +"</option>";
+                        }
+                        $("#userkey").html(html);
+                    }
+                    $("#default-option").hide();
+
+
+                },
+                error : function(xhr){
+                }
+            });
+        }
+    </script>
+
+    <script type="text/javascript">
+        function GeneralTypeChange(){
+            $("div.customlistingform").hide();
+            $("div.generallistingform").show();
+        }
+        function CustomTypeChange(){
+            $("div.customlistingform").show();
+            $("div.generallistingform").hide();
+        }
+        function GeneralTypeChangeEdit(){
+            $("div.customeditingform").hide();
+            $("div.generaleditingform").show();
+        }
+        function CustomTypeChangeEdit(){
+            $("div.customeditingform").show();
+            $("div.generaleditingform").hide();
+        }
+        $("#rmb").bind("input propertychange",function(event){
+            $.ajax({
+                url : "https://api.it120.cc/gooking/forex/rate?fromCode=CNY&toCode=USD",
+                type : 'GET',
+                dataType: 'json',
+                success : function(data){
+                    var rate = data.data.rate;
+                    $("#usd").val(($("#rmb").val()/rate).toFixed(2))
+                },
+                error : function(xhr){
+                }
+            });
+        });
+        $("#usd").bind("input propertychange",function(event){
+            $.ajax({
+                url : "https://api.it120.cc/gooking/forex/rate?fromCode=CNY&toCode=USD",
+                type : 'GET',
+                dataType: 'json',
+                success : function(data){
+                    var rate = data.data.rate;
+                    $("#rmb").val(($("#usd").val()*rate).toFixed(2))
+                },
+                error : function(xhr){
+                }
+            });
+        }); 
+        function num(obj){
+            obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d).*$/,'$1$2.$3');
+        }
+
+        function submit_listing(){
+            var bot = $("#userbot option:selected").text();
+            var key = $("#userkey option:selected").text();
+            if($('#generalradio').is(':checked') == true){
+                var listing_type = $('#general-label').text();
+                var start_time = $('input#general-start').val();
+                var end_time = $("input#general-end").val();
+            }
+            if($('#customradio').is(':checked') == true){
+                console.log('yes')
+                var listing_type = $('#custom-label').text();
+                var start_time = $('input#custom-start').val();
+                var end_time = $("input#custom-end").val();
+            }
+            var price = $("input[id='rmb']").val();
+            $.ajax({
+                url : "http://localhost:8000/user/listing/",
+                type : 'POST',
+                data : {
+                    'flag' : 'submit_listing',
+                    'bot' : bot,
+                    'key' : key,
+                    'start_time' : start_time,
+                    'end_time' : end_time,
+                    'price' : price,
+                    'listing_type':listing_type,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'SUCCESS'){
+                        $('listing-modal').modal('hide');
+                        $('listing-form').trigger("reset");
+                        location.reload();
+                    }
+                    if(data['status'] == 'FAIL'){
+                        alert("该key在该时间段已被租出！");
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function comfirm_reset(obj){
+            var tr = $(obj).parent().parent();
+            var num_listing = tr.children('td#num_listing').text();
+            var buy_type = tr.children('td#buy_type').text();
+            console.log(num_listing)
+            console.log(buy_type)
+            $.ajax({
+                url : "http://localhost:8000/user/listing/",
+                type : 'POST',
+                data : {
+                    'flag' : 'submit_reset',
+                    'num_listing': num_listing,
+                    'buy_type': buy_type,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    location.reload();
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function edit(obj){
+            $(obj).parent().children('#edit-modal').modal('show');
+        }
+
+        $("td#edit").each(function(){
+            var tr = $(this).parent();
+            var bot = tr.children("td#bot").text();
+            var key = tr.children("td#key").text();
+            var rental_type = tr.children("td#type").text();
+            var start_time = tr.children("td#start_time").text();
+            var end_time = tr.children("td#end_time").text();
+            var num_listing = tr.children("td#num_listing").text();
+            var body = $(this).children("div#edit-modal").children("div.modal-dialog").children("div.modal-content").children("div.modal-body")
+            body.children("div#botinmodal").html(bot);
+            body.children("div#keyinmodal").html(key);
+            body.children("div#pkinmodal").html(num_listing);
+
+            var item1 = body.children('.generaleditingform').children("input#edit-general-start")
+            var item2 = body.children('.generaleditingform').children("input#edit-general-end")
+            var item3 = body.children('.customeditingform').children("input#edit-custom-start")
+            var item4 = body.children('.customeditingform').children("input#edit-custom-end")
+            item1.flatpickr({
+                minDate: "today",
+            });
+            item2.flatpickr({
+                minDate: "today",
+            });
+            item3.flatpickr({
+                minDate: "today",
+                maxDate: new Date().fp_incr(2),
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+            });
+            item4.flatpickr({
+                minDate: "today",
+                maxDate: new Date().fp_incr(2),
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+            }); 
+            rmb = body.children('.row').children('#rmbcol').children('#rmb');
+            usd = body.children('.row').children('#usdcol').children('input#usd');
+            rmb.bind("input propertychange",function(event){
+                var rmb_val = $(this).val();
+                var usd = $(this).parent().parent().children('#usdcol').children('#usd');
+                $.ajax({
+                    url : "https://api.it120.cc/gooking/forex/rate?fromCode=CNY&toCode=USD",
+                    type : 'GET',
+                    dataType: 'json',
+                    success : function(data){
+                        var rate = data.data.rate;
+                        usd.val((rmb_val/rate).toFixed(2))
+                    },
+                    error : function(xhr){
+                    }
+                });
+            });
+            usd.bind("input propertychange",function(event){
+                var usd_val = $(this).val();
+                var rmb = $(this).parent().parent().children('#rmbcol').children('#rmb');
+                $.ajax({
+                    url : "https://api.it120.cc/gooking/forex/rate?fromCode=CNY&toCode=USD",
+                    type : 'GET',
+                    dataType: 'json',
+                    success : function(data){
+                        var rate = data.data.rate;
+                        rmb.val((usd_val*rate).toFixed(2))
+                    },
+                    error : function(xhr){
+                    }
+                });
+            });
+        })
+
+        function submit_editing(obj){
+            var div = $(obj).parent().parent().parent();
+            var body = div.children('.modal-body')
+            var num_listing = body.children('#pkinmodal').text();
+            var general_radio = body.children('.general-form-check').children('input#generalradio');
+            var general_start_time = body.children('.generaleditingform').children('#edit-general-start');
+            var general_end_time = body.children('.generaleditingform').children('#edit-general-end');
+            var custom_radio = body.children('.custom-form-check').children('input#customradio');
+            var custom_start_time = body.children('.customeditingform').children('#edit-custom-start');
+            var custom_end_time = body.children('.customeditingform').children('#edit-custom-end');
+            if(general_radio.is(':checked') == true){
+                var listing_type = $.trim($('#general-label').text());
+                var start_time = general_start_time.val();
+                var end_time = general_end_time.val();
+            }
+            if(custom_radio.is(':checked') == true){
+                var listing_type = $.trim($('#custom-label').text());
+                var start_time = custom_start_time.val();
+                var end_time = custom_end_time.val();
+            }
+            var price = body.children('.row').children('#rmbcol').children('input#rmb').val();
+            $.ajax({
+                url : "http://localhost:8000/user/listing/",
+                type : 'POST',
+                data : {
+                    'flag' : 'submit_editing',
+                    'num_listing': num_listing,
+                    'start_time' : start_time,
+                    'end_time' : end_time,
+                    'price' : price,
+                    'listing_type':listing_type,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'SUCCESS'){
+                        $('edit-modal').modal('hide');
+                        // $('editingg-form').trigger("reset");
+                        location.reload();
+                    }
+                    if(data['status'] == 'FAIL'){
+                        alert("该key在该时间段已被租出！");
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function deletelisting(obj){
+            var div = $(obj).parent().parent();
+            var divpk = div.children('div#modalpk');
+            var num_listing = divpk.children("span#spanpk").text();
+            $.ajax({
+                url : "http://localhost:8000/user/listing/",
+                type : 'POST',
+                data : {
+                    'flag' : 'delete_listing',
+                    'num_listing': num_listing,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'SUCCESS_DELETE_LISTING'){
+                        location.reload();
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function passingpk(obj){
+            var tr = $(obj).parent().parent();
+            var num_listing = tr.children("td#num_listing").text();    
+            $('div#modalpk').html('You are deleting #Listing <span id=\"spanpk\">'+ num_listing + '</span> !');   
+            $('#confirmdelete-modal').modal('show');
+        }
+
+
+
+        $("input#general-start").flatpickr({
+            minDate: "today",
+        });
+
+        $("input#general-end").flatpickr({
+            minDate: "today",
+        });
+
+        $("input#custom-start").flatpickr({
+                minDate: "today",
+                maxDate: new Date().fp_incr(2),
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+        });
+
+        $("input#custom-end").flatpickr({
+                minDate: "today",
+                maxDate: new Date().fp_incr(2),
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+        });
+
+    </script>
+{% endblock %}
+
+
+
+

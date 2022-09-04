@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!--页面标题-->
+{% block title %}
+    我的网站|错误
+{% endblock %}
+
+{% block header_extend %}{% endblock %}
+
+{% block nav_home_active %}active{% endblock %}
+
+<!--页面内容-->
+{% block content %}
+    {{ error_message }}, <a href="{{ redirect_to }}">返回</a>
+{% endblock %}
+

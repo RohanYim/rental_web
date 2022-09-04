@@ -1,0 +1,2266 @@
+{% extends 'base.html' %}
+
+<!--页面标题-->
+{% block title %}
+    我的网站|个人资料
+{% endblock %}
+
+{% load static %}
+{% block header_extend %}
+    <link rel="stylesheet" href="{% static 'amybot.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script> 
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+{% endblock %}
+
+{% block nav_home_active %}active{% endblock %}
+
+<!--页面内容-->
+{% block content %}
+<div id="container" class="container">
+    <div id="mainrow" class="row">
+        <div class="col-md-3">
+            <!-- Tabs nav -->
+            <div class="nav flex-column nav-pills nav-pills-custom" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <a class="nav-link mb-3 p-3 shadow active" id="v-pills-home-tab" data-bs-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true" onclick="changetab1()">
+                    <i class="fa fa-user-circle-o mr-2"></i>
+                    <span class="font-weight-bold small text-uppercase">我的库存</span></a>
+
+                <a class="nav-link mb-3 p-3 shadow" id="v-pills-profile-tab" data-bs-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="false" onclick="changetab2()">
+                    <i class="fa fa-calendar-minus-o mr-2"></i>
+                    <span class="font-weight-bold small text-uppercase">卖家面板</span></a>
+
+                <a class="nav-link mb-3 p-3 shadow" id="v-pills-sell-tab" data-bs-toggle="pill" href="#v-pills-sell" role="tab" aria-controls="v-pills-sell" aria-selected="false" onclick="changetab5()">
+                    <i class="fa fa-check mr-2"></i>
+                    <span class="font-weight-bold small text-uppercase">卖出记录</span></a>
+
+                <a class="nav-link mb-3 p-3 shadow" id="v-pills-messages-tab" data-bs-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="false" onclick="changetab3()">
+                    <i class="fa fa-star mr-2"></i>
+                    <span class="font-weight-bold small text-uppercase">买家面板</span></a>
+                
+                <a class="nav-link mb-3 p-3 shadow" id="v-pills-buy-tab" data-bs-toggle="pill" href="#v-pills-buy" role="tab" aria-controls="v-pills-buy" aria-selected="false" onclick="changetab6()">
+                    <i class="fa fa-check mr-2"></i>
+                    <span class="font-weight-bold small text-uppercase">买入记录</span></a>
+
+                <a class="nav-link mb-3 p-3 shadow" id="v-pills-settings-tab" data-bs-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false" onclick="changetab4()">
+                    <i class="fa fa-check mr-2"></i>
+                    <span class="font-weight-bold small text-uppercase">转账记录</span></a>
+
+            </div>
+        </div>
+
+
+        <div class="col-md-9">
+            <!-- Tabs content -->
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade shadow rounded bg-white show active p-5" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div id="buttonrow" class="row">
+                                <div class="col-sm-12">
+                                    <button id="verify" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#verify-modal">新增库存</button>
+                                </div>
+                            </div>
+                        
+                            <div class="modal fade" id="verify-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title" id="exampleModalLabel">新增库存</h4>
+                                            <button id="close" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="select-box">
+                                                <div id="bot" style="display: none;"></div>
+                                                <div class="select-box__current" tabindex="1">
+                                                    <div class="select-box__value">
+                                                        <input class="select-box__input" type="radio" id="0" value="1" name="Ben" checked="checked"/>
+                                                        <p class="select-box__input-text">请选择一个bot</p>
+                                                    </div>
+                                                    {% for i in bots %}
+                                                        <div class="select-box__value">
+                                                            <input class="select-box__input" type="radio" id="{{ i.name }}" value="1" name="Ben"/>
+                                                            <p class="select-box__input-text"><img id="select_img" alt="" src="{{ i.img_url }}">{{ i.name }}</p>
+                                                        </div>
+                                                    {% endfor %}
+                                                    <img class="select-box__icon" src="http://cdn.onlinewebfonts.com/svg/img_295694.svg" alt="Arrow Icon" aria-hidden="true"/>
+                                                </div>
+                                                
+                                                <ul class="select-box__list">
+                                                    <li>
+                                                        <label class="select-box__option" for="0" aria-hidden="aria-hidden" onclick="selectbot(this)">请选择一个bot</label>
+                                                    </li>
+                                                    {% for i in bots %}
+                                                        <li>
+                                                            <label class="select-box__option" for="{{ i.name }}" aria-hidden="aria-hidden" onclick="selectbot(this)"><img id="select_img" alt="" src="{{ i.img_url }}">{{ i.name }}</label>
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                            <label class="key" id="key" for="key">Key</label>
+                                            <input class="key" type="text" name="key" id="key" required>
+                                            <label class="nickname" id="key" for="nickname">设置昵称(<10个字符)</label>
+                                            <input class="nickname" maxlength="10" type="text" name="nickname" id="key">
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" id="addbot" class="btn btn-primary" onclick="addbot()">提交</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Table -->
+                        <div class="row">
+                            <div class="col">
+                                <div class="card shadow">
+                                    <div class="card-header border-0">
+                                        <h3 class="mb-0">Search Bar</h3>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="bots" class="table align-items-center table-flush">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Bot</th>
+                                                    <th scope="col">Key</th>
+                                                    <th scope="col">昵称</th>
+                                                    <th scope="col">状态</th>
+                                                    <th scope="col">动作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for bot in bot_list %}
+                                                    <tr>
+                                                        <td id="num_listing" scope="row">{{ bot.pk }}</th>
+                                                        <th scope="row">
+                                                            <div class="media align-items-center">
+                                                                <a href="#" class="avatar rounded-circle mr-3">
+                                                                    {% for i in bots %}
+                                                                        {% if i.name == bot.bot %}
+                                                                            <img alt="Image placeholder" src="{{ i.img_url }}">
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                </a>
+                                                                <div class="media-body">
+                                                                    <span class="mb-0 text-sm" >{{ bot.bot }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </th>
+                                                        <td title="{{ bot.key }}" id="botkey">
+                                                            <span id="botkey" data-clipboard-text="{{ bot.key }}">{{ bot.key }}</span>
+                                                        </td>
+                                                        <td>
+                                                            <span>{{ bot.key_nickname }}</span>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge badge-dot mr-4">
+                                                                {% if bot.status == 'Ready to be listed' %}
+                                                                    <i class="bg-success"></i>待列出
+                                                                {% elif bot.status == 'Processing Verification' %}
+                                                                    <i class="bg-warning"></i>检查中
+                                                                {% elif bot.status == 'Not Verified' %}
+                                                                    <i class="bg-danger"></i>未通过
+                                                                {% elif bot.status == 'Listed' %}
+                                                                    <i class="bg-primary"></i>已列出
+                                                                {% endif %}
+                                                            </span>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <i id="delete" class="bi bi-x-lg" onclick="passingpk(this)"></i>
+                                                            <div class="modal fade" id="confirmdelete-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                                                <div class="modal-dialog modal-confirm">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <i id="alert" class="bi bi-exclamation-triangle">警告</i>
+                                                                        </div>
+                                                                        <div id="modalpk" class="modal-body">
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button id="confirmdelete" type="button" class="btn btn-primary" onclick="deletelisting(this)">Comfirm</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="card-footer py-4">
+                                        <nav id="pager" aria-label="...">
+                                            <ul id="pager" class="pagination justify-content-end mb-0">
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade shadow rounded bg-white p-5" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div id="buttonrow" class="row">
+                                <div class="col-sm-12">
+                                    <button id="verify" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#listing-modal">新增列出</button>
+                                </div>
+                            </div>
+                        
+                            <div class="modal fade" id="listing-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title" id="exampleModalLabel">新增列出</h4>
+                                            <button id="close" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="" class="listing-form">
+                                                <div class="select-box">
+                                                    <input type="text" id="listing-bot" style="display: none;">
+                                                    <div class="select-box__current" tabindex="1">
+                                                        <div class="select-box__value">
+                                                            <input class="select-box__input" type="radio" id="0-listing" value="1" name="listing" checked="checked"/>
+                                                            <p class="select-box__input-text">请选择一个bot</p>
+                                                        </div>
+                                                        {% for i in havebot %}
+                                                            <div class="select-box__value">
+                                                                <input class="select-box__input" type="radio" id="{{ i.bot }}-listing" value="1" name="listing"/>
+                                                                <p class="select-box__input-text"><img id="select_img" alt="" src="{{ i.img_url }}">{{ i.bot }}</p>
+                                                            </div>
+                                                        {% endfor %}
+                                                        <img class="select-box__icon" src="http://cdn.onlinewebfonts.com/svg/img_295694.svg" alt="Arrow Icon" aria-hidden="true"/>
+                                                    </div>
+                                                    
+                                                    <ul class="select-box__list">
+                                                        <li>
+                                                            <label class="select-box__option" for="0-listing" aria-hidden="aria-hidden" onclick="listingbot(this)">请选择一个bot</label>
+                                                        </li>
+                                                        {% for i in havebot %}
+                                                            <li>
+                                                                <label class="select-box__option" for="{{ i.bot }}-listing" aria-hidden="aria-hidden" onclick="listingbot(this)"><img id="select_img" alt="" src="{{ i.img_url }}">{{ i.bot }}</label>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                <hr>
+                                                <div class="select-box-key">
+                                                    <input type="text" id="listing-key" style="display: none;">
+                                                    <div class="select-box__current" tabindex="1">
+                                                        <div id="key-default-up" class="select-box__value">
+                                                            <input class="select-box__input" type="radio" id="0-key" value="1" name="key" checked="checked"/>
+                                                            <p id="请选择一个Key" class="select-box__input_key-text">请选择一个Key</p>
+                                                        </div>
+
+                                                        <img class="select-box__icon" src="http://cdn.onlinewebfonts.com/svg/img_295694.svg" alt="Arrow Icon" aria-hidden="true"/>
+                                                    </div>
+                                                    
+                                                    <ul class="select-box__list">
+                                                        <li id="key-default">
+                                                            <label class="select-box__option" for="0-key" aria-hidden="aria-hidden" onclick="listingkey(this)">请选择一个Key</label>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <hr>
+                                                <p>出租类型</p>
+                                                <div class="col-sm-9 text-secondary">
+                                                    <span id="radio"><input type="radio" name="rentaltype" id="generalradio" value="General Rental" onchange="GeneralTypeChange()"><label id="general-label" for="generalradio" style="margin-bottom: 10px;color: black;">普通租赁</label></span>
+                                                    <span id="radio"><input type="radio" name="rentaltype" id="customradio" value="Custom Rental" onchange="CustomTypeChange()"><label id="custom-label" for="customradio" style="margin-bottom: 10px;color: black;">自定义租赁</label></span>
+                                                </div>
+                                                <p>时间</p>
+                                                <div class="generallistingform">
+                                                    <div class="row">
+                                                        <input type="text" id="general-start">
+                                                        <input type="text" id="general-end">
+                                                    </div>
+                                                </div>
+                                                <div class="customlistingform" style="display: none;">
+                                                    <div class="row">
+                                                        <input type="text" id="custom-start">
+                                                        <input type="text" id="custom-end">
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <style type="text/css">
+                                                    input::-webkit-outer-spin-button,
+                                                    input::-webkit-inner-spin-button {
+                                                        -webkit-appearance: none;
+                                                    }
+                                                    input[type="number"] {
+                                                        -moz-appearance: textfield;
+                                                    }
+                                                </style>
+                                                <p>价格</p>
+                                                <div class="row" style="width: 100%;">
+                                                    <div class="col">
+                                                        <div class="row">
+                                                            <span style="width: 20%;position: relative;top: 5px;">￥</span>
+                                                            <input style="width: 80%;" class="price" type="number" id="rmb" placeholder="RMB" onkeyup="num(this)">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col text-center">
+                                                        <h2><i id="exchange" class="bi bi-currency-exchange"></i></h2>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="row">
+                                                            <span style="width: 20%;position: relative;top: 5px;">$</span>
+                                                            <input style="width: 80%;" class="price" type="number" id="usd" placeholder="USD" onkeyup="num(this)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" id="addlisting" class="btn btn-primary" onclick="addlisting()">提交</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Table -->
+                        <div class="row">
+                            <div class="col">
+                                <div class="card shadow">
+                                    <div class="card-header border-0">
+                                        <h3 class="mb-0">Search Bar</h3>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="seller" class="table align-items-center table-flush">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Bot</th>
+                                                    <th scope="col">Key</th>
+                                                    <th scope="col">昵称</th>
+                                                    <th scope="col">租赁方式</th>
+                                                    <th scope="col">开始时间</th>
+                                                    <th scope="col">结束时间</th>
+                                                    <th scope="col">价格</th>
+                                                    <th scope="col">状态</th>
+                                                    <th scope="col">动作</th>
+                                                    <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for bot in botlisting %}
+                                                    <tr>
+                                                        <td id="num_my_listing" scope="row">{{ bot.pk }}</th>
+                                                        <th id="bot" scope="row">
+                                                            
+                                                            <div class="media align-items-center">
+                                                                <a href="#" class="avatar rounded-circle mr-3">
+                                                                    <img alt="Image placeholder" src="{{ bot.img_url }}">
+                                                                </a>
+                                                                <div class="media-body">
+                                                                    <span class="mb-0 text-sm" >{{ bot.bot }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </th>
+                                                        <td title="{{ bot.key }}" id="my_botkey">
+                                                            <span id="my_botkey" data-clipboard-text="{{ bot.key }}">{{ bot.key }}</span>
+                                                        </td>
+                                                        <td id="key_nickname">
+                                                            <span>{{ bot.key_nickname }}</span>
+                                                        </td>
+                                                        <td id="listing_type">
+                                                            {% if bot.listing_type == 'General Rental'%}
+                                                                <span>普通租赁</span>
+                                                            {% elif bot.listing_type == 'Custom Rental'%}
+                                                                <span>自定义租赁</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td id="start_time">
+                                                            <span>{{ bot.start_time }}</span>
+                                                        </td>
+                                                        <td id="end_time">
+                                                            <span>{{ bot.end_time }}</span>
+                                                        </td>
+                                                        <td id="price">
+                                                            <span>￥{{ bot.rmb_price}}(${{ bot.usd_price }})</span>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge badge-dot mr-4">
+                                                                {% if bot.status == 'Show' %}
+                                                                    <i class="bg-success"></i>待租赁
+                                                                {% elif bot.status == 'Unshow' %}
+                                                                    <i class="bg-warning"></i>已租出
+                                                                {% elif bot.keyreset_status == 'Wating for reset' %}
+                                                                    <i class="bg-danger"></i>等待reset
+                                                                {% endif %}
+                                                            </span>
+                                                        </td>
+                                                        <td id="edit">
+                                                            {% if bot.status == 'Show' %}
+                                                                <i id="edit" class="bi bi-pencil-fill" onclick="edit(this)"></i>
+                                                                <div class="modal fade" id="edit-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                                                    <div class="modal-dialog">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h4 class="modal-title" id="exampleModalLabel">修改列出</h4>
+                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <div class="row">
+                                                                                    <img id="edit" src="{{ bot.img_url }}">
+                                                                                    <div id="botinmodal"></div>
+                                                                                </div>
+                                                                                <div id="keyinmodal"></div>
+                                                                                <div id="pkinmodal" style="display: none;"></div>
+                                                                                <hr>
+                                                                                <p>出租类型</p>
+                                                                                <span class="edit-general" id="radio"><input type="radio" name="{{ bot.pk }}edit_rentaltype" id="{{ bot.pk }}edit_generalradio" value="General Rental" onchange="GeneralTypeChangeEdit()"><label id="edit_general-label" for="{{ bot.pk }}edit_generalradio" style="margin-bottom: 10px;color: black;">普通租赁</label></span>
+                                                                                <span class="edit-custom" id="radio"><input type="radio" name="{{ bot.pk }}edit_rentaltype" id="{{ bot.pk }}edit_customradio" value="Custom Rental" onchange="CustomTypeChangeEdit()"><label id="edit_custom-label" for="{{ bot.pk }}edit_customradio" style="margin-bottom: 10px;color: black;">自定义租赁</label></span>
+                                                                                <hr>
+                                                                                <p>时间</p>
+                                                                                <div class="generaleditingform">
+                                                                                    <div class="row">
+                                                                                        <input type="text" id="edit-general-start">
+                                                                                        <input type="text" id="edit-general-end">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="customeditingform" style="display: none;">
+                                                                                    <div class="row">
+                                                                                        <input type="text" id="edit-custom-start">
+                                                                                        <input type="text" id="edit-custom-end">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <hr>
+                                                                                <style type="text/css">
+                                                                                    input::-webkit-outer-spin-button,
+                                                                                    input::-webkit-inner-spin-button {
+                                                                                        -webkit-appearance: none;
+                                                                                    }
+                                                                                    input[type="number"] {
+                                                                                        -moz-appearance: textfield;
+                                                                                    }
+                                                                                </style>
+                                                                                <p>价格</p>
+                                                                                <div class="row" style="width: 100%;">
+                                                                                    <div id="rmbcol" class="col">
+                                                                                        <div class="row">
+                                                                                            <span style="width: 20%;position: relative;top: 5px;">￥</span>
+                                                                                            <input style="width: 80%;" class="price" type="number" id="edit_rmb" placeholder="RMB" onkeyup="num(this)">
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="col text-center">
+                                                                                        <h2><i id="exchange" class="bi bi-currency-exchange"></i></h2>
+                                                                                    </div>
+                                                                                    <div id="usdcol" class="col">
+                                                                                        <div class="row">
+                                                                                            <span style="width: 20%;position: relative;top: 5px;">$</span>
+                                                                                            <input style="width: 80%;" class="price" type="number" id="edit_usd" placeholder="USD" onkeyup="num(this)">
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                            
+                                                                            </div>
+                                                                            <div class="modal-footer">
+                                                                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                                                                    <button id="editbutton" type="button" class="btn btn-primary" onclick="submit_editing(this)">修改</button>
+                                                                                </div>
+                                                                            </div>
+                                            
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {% if bot.status == 'Show' %}
+                                                                <i id="delete" class="bi bi-x-lg" onclick="passing_listing_pk(this)"></i>
+                                                            {% endif %}
+                                                            <div class="modal fade" id="my_confirmdelete-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                                                <div class="modal-dialog modal-confirm">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <i id="alert" class="bi bi-exclamation-triangle">警告</i>
+                                                                        </div>
+                                                                        <div id="listingpk" class="modal-body">
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button id="confirmdelete" type="button" class="btn btn-primary" onclick="delete_my_listing(this)">Comfirm</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="card-footer py-4">
+                                        <nav id="pager_seller" aria-label="...">
+                                            <ul id="pager_seller" class="pagination justify-content-end mb-0">
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade shadow rounded bg-white p-5" id="v-pills-sell" role="tabpanel" aria-labelledby="v-pills-sell-tab">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="card shadow">
+                                    <div class="card-header border-0">
+                                        <h3 class="mb-0">Search Bar</h3>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="transaction" class="table align-items-center table-flush">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Bot</th>
+                                                    <th scope="col">Key</th>
+                                                    <th scope="col">昵称</th>
+                                                    <th scope="col">租赁方式</th>
+                                                    <th scope="col">开始时间</th>
+                                                    <th scope="col">结束时间</th>
+                                                    <th scope="col">价格</th>
+                                                    <th scope="col">状态</th>
+                                                    <th scope="col"></th>
+                                                    <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for item,type in active_rental %}
+                                                    <tr>
+                                                        <td id="num_sell" scope="row">{{ item.pk }}</th>
+                                                        <td id="buy_type" style="display: none;">{{ type }}</td>
+                                                        <th id="sell_bot" scope="row">
+                                                            <div class="media align-items-center">
+                                                                <a href="#" class="avatar rounded-circle mr-3">
+                                                                    <img alt="Image placeholder" src="{{ item.img_url }}">
+                                                                </a>
+                                                                <div class="media-body">
+                                                                    <span class="mb-0 text-sm" >{{ item.bot }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </th>
+                                                        <td title="{{ item.key }}" id="sell_botkey">
+                                                            <span id="sell_botkey" data-clipboard-text="{{ item.key }}">{{ item.key }}</span>
+                                                        </td>
+                                                        <td id="sell_keynickname">{{ item.key_nickname }}</td>
+                                                        <td id="sell_type">
+                                                            {% if item.listing_type == 'General Rental'%}
+                                                                <span>普通租赁</span>
+                                                            {% elif item.listing_type == 'Custom Rental'%}
+                                                                <span>自定义租赁</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td id="sell_start_time">{{ item.start_time }}</td>
+                                                        <td id="sell_end_time">{{ item.end_time }}</td>
+                                                        <td id="sell_price">
+                                                            <span>￥{{ item.rmb_price}}(${{ item.usd_price }})</span>
+                                                        </td>
+                                                        <td id="time_status">
+                                                            <span class="badge badge-dot mr-4">
+                                                                <i class="bg-success"></i>进行中
+                                                            </span>
+                                                        </td>
+                                                        {% if item.keyreset_status == 'Waiting for reset' %}
+                                                            <td>{{ item.keyreset_time }}</td>
+                                                            <td id="reset">
+                                                                <button id="confirm-reset" type="button" class="btn btn-primary" onclick="comfirm_reset(this)">完成reset</button>
+                                                            </td>
+                                                        {% endif %}
+                                                    </tr>
+                                                {% endfor %}
+                                                {% for item,type in upcoming_rental %}
+                                                    <tr>
+                                                        <td id="num_sell" scope="row">{{ item.pk }}</th>
+                                                        <th id="sell_bot" scope="row">
+                                                        
+                                                            <div class="media align-items-center">
+                                                                <a href="#" class="avatar rounded-circle mr-3">
+                                                                    <img alt="Image placeholder" src="{{ item.img_url }}">
+                                                                </a>
+                                                                <div class="media-body">
+                                                                    <span class="mb-0 text-sm" >{{ item.bot }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </th>
+                                                        <td title="{{ item.key }}" id="sell_botkey">
+                                                            <span id="sell_botkey" data-clipboard-text="{{ item.key }}">{{ item.key }}</span>
+                                                        </td>
+                                                        <td id="sell_keynickname">{{ item.key_nickname }}</td>
+                                                        <td id="sell_type">
+                                                            {% if item.listing_type == 'General Rental'%}
+                                                                <span>普通租赁</span>
+                                                            {% elif item.listing_type == 'Custom Rental'%}
+                                                                <span>自定义租赁</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td id="sell_start_time">{{ item.start_time }}</td>
+                                                        <td id="sell_end_time">{{ item.end_time }}</td>
+                                                        <td id="sell_price">
+                                                            <span>￥{{ item.rmb_price}}(${{ item.usd_price }})</span>
+                                                        </td>
+                                                        <td id="time_status">
+                                                            <span class="badge badge-dot mr-4">
+                                                                <i class="bg-primary"></i>即将开始
+                                                            </span>
+                                                            
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                {% for item,type in past_rental %}
+                                                    <tr>
+                                                        <td id="num_sell" scope="row">{{ item.pk }}</th>
+                                                        <th id="sell_bot" scope="row">
+                                                        
+                                                            <div class="media align-items-center">
+                                                                <a href="#" class="avatar rounded-circle mr-3">
+                                                                    <img alt="Image placeholder" src="{{ item.img_url }}">
+                                                                </a>
+                                                                <div class="media-body">
+                                                                    <span class="mb-0 text-sm" >{{ item.bot }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </th>
+                                                        <td title="{{ item.key }}" id="sell_botkey">
+                                                            <span id="sell_botkey" data-clipboard-text="{{ item.key }}">{{ item.key }}</span>
+                                                        </td>
+                                                        <td id="sell_keynickname">{{ item.key_nickname }}</td>
+                                                        <td id="sell_type">
+                                                            {% if item.listing_type == 'General Rental'%}
+                                                                <span>普通租赁</span>
+                                                            {% elif item.listing_type == 'Custom Rental'%}
+                                                                <span>自定义租赁</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td id="sell_start_time">{{ item.start_time }}</td>
+                                                        <td id="sell_end_time">{{ item.end_time }}</td>
+                                                        <td id="sell_price">
+                                                            <span>￥{{ item.rmb_price}}(${{ item.usd_price }})</span>
+                                                        </td>
+                                                        <td id="time_status">
+                                                            <span class="badge badge-dot mr-4">
+                                                                <i class="bg-dark"></i>已结束
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="card-footer py-4">
+                                        <nav id="pager_sell" aria-label="...">
+                                            <ul id="pager_sell" class="pagination justify-content-end mb-0">
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade shadow rounded bg-white p-5" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div id="buttonrow" class="row">
+                                <div class="col-sm-12">
+                                    <button id="verify" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bidding-modal">新增求购</button>
+                                </div>
+                            </div>
+                        
+                            <div class="modal fade" id="bidding-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title" id="exampleModalLabel">新增求购</h4>
+                                            <button id="close" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="" class="bidding-form">
+                                                <div class="select-box">
+                                                    <input type="text" id="bidding-bot" style="display: none;">
+                                                    <div class="select-box__current" tabindex="1">
+                                                        <div class="select-box__value">
+                                                            <input class="select-box__input" type="radio" id="0-bidding" value="1" name="bidding" checked="checked"/>
+                                                            <p class="select-box__input-text">请选择一个bot</p>
+                                                        </div>
+                                                        {% for i in havebot %}
+                                                            <div class="select-box__value">
+                                                                <input class="select-box__input" type="radio" id="{{ i.bot }}-bidding" value="1" name="bidding"/>
+                                                                <p class="select-box__input-text"><img id="select_img" alt="" src="{{ i.img_url }}">{{ i.bot }}</p>
+                                                            </div>
+                                                        {% endfor %}
+                                                        <img class="select-box__icon" src="http://cdn.onlinewebfonts.com/svg/img_295694.svg" alt="Arrow Icon" aria-hidden="true"/>
+                                                    </div>
+                                                    
+                                                    <ul class="select-box__list">
+                                                        <li>
+                                                            <label class="select-box__option" for="0-bidding" aria-hidden="aria-hidden" onclick="biddingbot(this)">请选择一个bot</label>
+                                                        </li>
+                                                        {% for i in havebot %}
+                                                            <li>
+                                                                <label class="select-box__option" for="{{ i.bot }}-bidding" aria-hidden="aria-hidden" onclick="biddingbot(this)"><img id="select_img" alt="" src="{{ i.img_url }}">{{ i.bot }}</label>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                <hr>
+                                                <p>求购类型</p>
+                                                <div class="col-sm-9 text-secondary">
+                                                    <span id="radio"><input type="radio" name="bidtype" id="bidgeneralradio" value="General Rental" onchange="GeneralTypeChange()"><label id="general-label" for="bidgeneralradio" style="margin-bottom: 10px;color: black;">普通租赁</label></span>
+                                                    <span id="radio"><input type="radio" name="bidtype" id="bidcustomradio" value="Custom Rental" onchange="CustomTypeChange()"><label id="custom-label" for="bidcustomradio" style="margin-bottom: 10px;color: black;">自定义租赁</label></span>
+                                                </div>
+                                                <p>时间</p>
+                                                <div class="generallistingform">
+                                                    <div class="row">
+                                                        <input type="text" id="bid-general-start">
+                                                        <input type="text" id="bid-general-end">
+                                                    </div>
+                                                </div>
+                                                <div class="customlistingform" style="display: none;">
+                                                    <div class="row">
+                                                        <input type="text" id="bid-custom-start">
+                                                        <input type="text" id="bid-custom-end">
+                                                    </div>
+                                                </div>
+                                                <hr>
+                                                <style type="text/css">
+                                                    input::-webkit-outer-spin-button,
+                                                    input::-webkit-inner-spin-button {
+                                                        -webkit-appearance: none;
+                                                    }
+                                                    input[type="number"] {
+                                                        -moz-appearance: textfield;
+                                                    }
+                                                </style>
+                                                <p>价格</p>
+                                                <div class="row" style="width: 100%;">
+                                                    <div class="col">
+                                                        <div class="row">
+                                                            <span style="width: 20%;position: relative;top: 5px;">￥</span>
+                                                            <input style="width: 80%;" class="price" type="number" id="bid-rmb" placeholder="RMB" onkeyup="num(this)">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col text-center">
+                                                        <h2><i id="exchange" class="bi bi-currency-exchange"></i></h2>
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="row">
+                                                            <span style="width: 20%;position: relative;top: 5px;">$</span>
+                                                            <input style="width: 80%;" class="price" type="number" id="bid-usd" placeholder="USD" onkeyup="num(this)">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" id="addbidding" class="btn btn-primary" onclick="addbidding()">提交</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col">
+                                <div class="card shadow">
+                                    <div class="card-header border-0">
+                                        <h3 class="mb-0">Search Bar</h3>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="buyer" class="table align-items-center table-flush">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Bot</th>
+                                                    <th scope="col">租赁方式</th>
+                                                    <th scope="col">开始时间</th>
+                                                    <th scope="col">结束时间</th>
+                                                    <th scope="col">价格</th>
+                                                    <th scope="col">状态</th>
+                                                    <th scope="col">动作</th>
+                                                    <th scope="col"></th>
+                                                    <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for bot in bidding %}
+                                                    <tr>
+                                                        <td id="num_my_listing" scope="row">{{ bot.pk }}</th>
+                                                        <th id="bot" scope="row">
+                                                            
+                                                            <div class="media align-items-center">
+                                                                <a href="#" class="avatar rounded-circle mr-3">
+                                                                    <img alt="Image placeholder" src="{{ bot.img_url }}">
+                                                                </a>
+                                                                <div class="media-body">
+                                                                    <span class="mb-0 text-sm" >{{ bot.bot }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </th>
+                                                        <td id="listing_type">
+                                                            {% if bot.listing_type == 'General Rental'%}
+                                                                <span>普通租赁</span>
+                                                            {% elif bot.listing_type == 'Custom Rental'%}
+                                                                <span>自定义租赁</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td id="start_time">
+                                                            <span>{{ bot.start_time }}</span>
+                                                        </td>
+                                                        <td id="end_time">
+                                                            <span>{{ bot.end_time }}</span>
+                                                        </td>
+                                                        <td id="price">
+                                                            <span>￥{{ bot.rmb_price}}(${{ bot.usd_price }})</span>
+                                                        </td>
+                                                        <td id="status">
+                                                            <span class="badge badge-dot mr-4">
+                                                                {% if bot.payment_status == 'Listing' %}
+                                                                    <i class="bg-primary"></i>已列出
+                                                                {% elif bot.payment_status == 'Unpaid' %}
+                                                                    <i class="bg-warning"></i>待支付
+                                                                {% elif bot.payment_status == 'Paid' %}
+                                                                    <i class="bg-success"></i>已支付
+                                                                {% endif %}
+                                                            </span>
+                                                        </td>
+                                                        <td id="pay">
+                                                            {% if bot.payment_status == 'Unpaid' %}
+                                                                <span>{{ bot.remove_time }}</span>
+                                                                <img id="alipay" src="https://i.imgur.com/VIhITOh.png" onclick="pay(this)">
+                                                                <div class="modal fade" id="orderstatus-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                                                    <div class="modal-dialog">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                支付确认
+                                                                            </div>
+                                                                            <div id="modalpk" class="modal-body">
+                                                                                <p>请在完成支付后确认</p>
+                                                                            </div>
+                                                                            <p id="bidding_pk" style="display: none;"></p>
+                                                                            <div class="modal-footer">
+                                                                                <button id="cancelpayment" type="button" class="btn btn-primary" onclick="unsuccess(this)">取消支付</button>
+                                                                                <button id="confirmpayment" type="button" class="btn btn-primary" onclick="success(this)">完成支付</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td id="edit">
+                                                            {% if bot.payment_status == 'Listing' %}
+                                                                <i id="edit" class="bi bi-pencil-fill" onclick="edit(this)"></i>
+                                                                <div class="modal fade" id="edit-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                                                    <div class="modal-dialog">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h4 class="modal-title" id="exampleModalLabel">修改求购</h4>
+                                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <div class="row">
+                                                                                    <img id="edit" src="{{ bot.img_url }}">
+                                                                                    <div id="botinmodal"></div>
+                                                                                </div>
+                                                                                <div id="keyinmodal"></div>
+                                                                                <div id="pkinmodal" style="display: none;"></div>
+                                                                                <hr>
+                                                                                <p>出租类型</p>
+                                                                                <span class="edit-general" id="radio"><input type="radio" name="{{ bot.pk }}edit_rentaltype" id="{{ bot.pk }}edit_generalradio" value="General Rental" onchange="GeneralTypeChangeEdit()"><label id="edit_general-label" for="{{ bot.pk }}edit_generalradio" style="margin-bottom: 10px;color: black;">普通租赁</label></span>
+                                                                                <span class="edit-custom" id="radio"><input type="radio" name="{{ bot.pk }}edit_rentaltype" id="{{ bot.pk }}edit_customradio" value="Custom Rental" onchange="CustomTypeChangeEdit()"><label id="edit_custom-label" for="{{ bot.pk }}edit_customradio" style="margin-bottom: 10px;color: black;">自定义租赁</label></span>
+                                                                                <hr>
+                                                                                <p>时间</p>
+                                                                                <div class="generaleditingform">
+                                                                                    <div class="row">
+                                                                                        <input type="text" id="edit-general-start">
+                                                                                        <input type="text" id="edit-general-end">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="customeditingform">
+                                                                                    <div class="row">
+                                                                                        <input type="text" id="edit-custom-start">
+                                                                                        <input type="text" id="edit-custom-end">
+                                                                                    </div>
+                                                                                </div>
+                                                                                <hr>
+                                                                                <style type="text/css">
+                                                                                    input::-webkit-outer-spin-button,
+                                                                                    input::-webkit-inner-spin-button {
+                                                                                        -webkit-appearance: none;
+                                                                                    }
+                                                                                    input[type="number"] {
+                                                                                        -moz-appearance: textfield;
+                                                                                    }
+                                                                                </style>
+                                                                                <p>价格</p>
+                                                                                <div class="row" style="width: 100%;">
+                                                                                    <div id="rmbcol" class="col">
+                                                                                        <div class="row">
+                                                                                            <span style="width: 20%;position: relative;top: 5px;">￥</span>
+                                                                                            <input style="width: 80%;" class="price" type="number" id="edit_rmb" placeholder="RMB" onkeyup="num(this)">
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="col text-center">
+                                                                                        <h2><i id="exchange" class="bi bi-currency-exchange"></i></h2>
+                                                                                    </div>
+                                                                                    <div id="usdcol" class="col">
+                                                                                        <div class="row">
+                                                                                            <span style="width: 20%;position: relative;top: 5px;">$</span>
+                                                                                            <input style="width: 80%;" class="price" type="number" id="edit_usd" placeholder="USD" onkeyup="num(this)">
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                            
+                                                                            </div>
+                                                                            <div class="modal-footer">
+                                                                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                                                                    <button id="editbutton" type="button" class="btn btn-primary" onclick="submit_bid_editing(this)">修改</button>
+                                                                                </div>
+                                                                            </div>
+                                            
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {% if bot.status == 'Show' %}
+                                                                <i id="delete" class="bi bi-x-lg" onclick="passing_bidding_pk(this)"></i>
+                                                            {% endif %}
+                                                            <div class="modal fade" id="bid_delete-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                                                <div class="modal-dialog modal-confirm">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <i id="alert" class="bi bi-exclamation-triangle">警告</i>
+                                                                        </div>
+                                                                        <div id="biddingpk" class="modal-body">
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button id="confirmdelete" type="button" class="btn btn-primary" onclick="delete_my_bidding(this)">确认</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="card-footer py-4">
+                                        <nav id="pager_buyer" aria-label="...">
+                                            <ul id="pager_buyer" class="pagination justify-content-end mb-0">
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade shadow rounded bg-white p-5" id="v-pills-buy" role="tabpanel" aria-labelledby="v-pills-buy-tab">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="card shadow">
+                                    <div class="card-header border-0">
+                                        <h3 class="mb-0">Search Bar</h3>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="transaction" class="table align-items-center table-flush">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Bot</th>
+                                                    <th scope="col">Key</th>
+                                                    <th scope="col">开始时间</th>
+                                                    <th scope="col">结束时间</th>
+                                                    <th scope="col">价格</th>
+                                                    <th scope="col">状态</th>
+                                                    <th scope="col">动作</th>
+                                                    <th scope="col"></th>
+                                                    <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for listing,type in active_buy %}
+                                                    <tr>
+                                                        <td id="num_buy">{{ listing.pk }}</td>
+                                                        <td id="buy_type" style="display: none;">{{ type }}</td>
+                                                        <th id="buy_bot" scope="row">
+                                                            <div class="media align-items-center">
+                                                                <a href="#" class="avatar rounded-circle mr-3">
+                                                                    <img alt="Image placeholder" src="{{ listing.img_url }}">
+                                                                </a>
+                                                                <div class="media-body">
+                                                                    <span class="mb-0 text-sm" >{{ listing.bot }}</span>
+                                                                </div>
+                                                            </div>
+                                                        </th>
+                                                        <td id="buy_key">{{ listing.key }}</td>
+                                                        <td id="buy_start_time">{{ listing.start_time }}</td>
+                                                        <td id="buy_end_time">{{ listing.end_time }}</td>
+                                                        <td id="buy_price">
+                                                            <span>￥{{ listing.rmb_price}}(${{ listing.usd_price }})</span>
+                                                        </td>
+                                                        <td id="buy_reset">
+                                                            {% if listing.keyreset_status == 'Nothing' %}
+                                                                <button id="reset" type="button" class="btn btn-primary" onclick="reset(this)">请求reset</button>
+                                                                <div class="modal fade" id="reset-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                                                    <div class="modal-dialog">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                请求reset
+                                                                            </div>
+                                                                            <div id="modalpk" class="modal-body">
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <p>请选择一个你希望卖家reset的时间</p>
+                                                                                <p>（请点击“立刻reset”如果你现在需要reset）:</p>
+                                                                                <input type="text" id="reset">
+                                                                            </div>
+                                                                            <p id="pk" style="display: none;"></p>
+                                                                            <p id="buy_type" style="display: none;"></p>
+                                                                            <div class="modal-footer">
+                                                                                <button id="resetnow" type="button" class="btn btn-primary" onclick="resetnow(this)">立刻reset</button>
+                                                                                <button id="resetlater" type="button" class="btn btn-primary" onclick="submitreset(this)">确认</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="card-footer py-4">
+                                        <nav id="pager_buy" aria-label="...">
+                                            <ul id="pager_buy" class="pagination justify-content-end mb-0">
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade shadow rounded bg-white p-5" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="card shadow">
+                                    <div class="card-header border-0">
+                                        <h3 class="mb-0">Search Bar</h3>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table id="transaction" class="table align-items-center table-flush">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">类型</th>
+                                                    <th scope="col">状态</th>
+                                                    <th scope="col">数量</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for item in transactions %}
+                                                    <tr>
+                                                        <td id="num_trans" scope="row">{{ item.pk }}</th>
+                                                        <th id="use" scope="row">
+                                                            {% if item.use == 'topup' %}
+                                                                充值
+                                                            {% endif %}
+                                                            {% if item.use == 'withdrawal' %}
+                                                                提现
+                                                            {% endif %}
+                                                            {% if item.use == 'refund' %}
+                                                                退款
+                                                            {% endif %}
+                                                        
+                                                        </th>
+                                                        <td id="status">
+                                                            <span class="badge badge-dot mr-4">
+                                                                {% if item.status == 'Paid' %}
+                                                                    <i class="bg-success"></i>已支付
+                                                                {% endif %}
+                                                                {% if item.status == 'Failed' %}
+                                                                    <i class="bg-danger"></i>未成功
+                                                                {% endif %}
+                                                                {% if item.status == 'Processing' %}
+                                                                    <i class="bg-primary"></i>进行中
+                                                                {% endif %}
+                                                            </span>
+                                                        </td>
+                                                        <td id="amount">
+                                                            <span>￥{{ item.amount }}</span>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="card-footer py-4">
+                                        <nav id="pager_trans" aria-label="...">
+                                            <ul id="pager_trans" class="pagination justify-content-end mb-0">
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}    
+
+{% block script_expend %}
+    <script src="https://cdn.bootcss.com/clipboard.js/1.7.1/clipboard.min.js"></script>
+    <script>
+        var clipboard=new Clipboard('span#botkey');
+        var clipboard2=new Clipboard('span#my_botkey');
+        var notyf = new Notyf({
+                duration: 2000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+        clipboard.on('success', function(e){
+            notyf.success('复制成功');
+        });
+        clipboard2.on('success', function(e){
+            notyf.success('复制成功');
+        });
+    </script>
+    <script>
+        $(window).load(function(){
+            $("td#botkey").each(function() {
+                var key = $(this).children('span#botkey').text();
+                if(key.length >= 20){
+                    key = key.substring(0,20);
+                    key = key + '...';
+                    $(this).children('span#botkey').html(key);
+                }
+            });
+            
+            $("td#my_botkey").each(function() {
+                var key = $(this).children('span#my_botkey').text();
+                if(key.length >= 20){
+                    key = key.substring(0,20);
+                    key = key + '...';
+                    $(this).children('span#my_botkey').html(key);
+                }
+            });
+        });
+
+    </script>
+    <script>
+        $(function(){
+            var $table = $('table#bots');
+            var currentPage = 0;//当前页默认值为0
+            var pageSize = 10;//每一页显示的数目
+            $table.bind('paging',function(){
+                $table.find('tbody tr').hide().slice(currentPage*pageSize,(currentPage+1)*pageSize).show();
+            });	 
+            var sumRows = $table.find('tbody tr').length;
+            var sumPages = Math.ceil(sumRows/pageSize);//总页数
+            
+            var $pager = $('ul#pager');  //新建div，放入a标签,显示底部分页码
+            for(var pageIndex = 0 ; pageIndex<sumPages ; pageIndex++){
+                $('<li class="page-item"><a id="page" class="page-link" οnclick="changepage(this)">'+(pageIndex+1)+'</a></li>').bind("click",{"newPage":pageIndex},function(event){
+                    currentPage = event.data["newPage"];
+                    $table.trigger("paging");
+                        //触发分页函数
+                    }).appendTo($pager);
+                    $pager.append(" ");
+
+            }	 
+            $pager.appendTo($('nav#pager'));
+            $table.trigger("paging");
+
+            var $page = $('a#page:first');
+            $page.parents().addClass('active');
+                
+        });
+
+        $(function(){
+            var $table = $('table#seller');
+            var currentPage = 0;//当前页默认值为0
+            var pageSize = 10;//每一页显示的数目
+            $table.bind('paging',function(){
+                $table.find('tbody tr').hide().slice(currentPage*pageSize,(currentPage+1)*pageSize).show();
+            });	 
+            var sumRows = $table.find('tbody tr').length;
+            var sumPages = Math.ceil(sumRows/pageSize);//总页数
+            
+            var $pager = $('ul#pager_seller');  //新建div，放入a标签,显示底部分页码
+            for(var pageIndex = 0 ; pageIndex<sumPages ; pageIndex++){
+                $('<li class="page-item_seller"><a id="page_seller" class="page-link" οnclick="changepage(this)">'+(pageIndex+1)+'</a></li>').bind("click",{"newPage":pageIndex},function(event){
+                    currentPage = event.data["newPage"];
+                    $table.trigger("paging");
+                        //触发分页函数
+                    }).appendTo($pager);
+                    $pager.append(" ");
+
+            }	 
+            $pager.appendTo($('nav#pager_seller'));
+            $table.trigger("paging");
+
+            var $page = $('a#page_seller:first');
+            $page.parents().addClass('active');
+                
+        });
+
+        $(function(){
+            var $table = $('table#buyer');
+            var currentPage = 0;//当前页默认值为0
+            var pageSize = 10;//每一页显示的数目
+            $table.bind('paging',function(){
+                $table.find('tbody tr').hide().slice(currentPage*pageSize,(currentPage+1)*pageSize).show();
+            });	 
+            var sumRows = $table.find('tbody tr').length;
+            var sumPages = Math.ceil(sumRows/pageSize);//总页数
+            
+            var $pager = $('ul#pager_buyer');  //新建div，放入a标签,显示底部分页码
+            for(var pageIndex = 0 ; pageIndex<sumPages ; pageIndex++){
+                $('<li class="page-item_buyer"><a id="page_buyer" class="page-link" οnclick="changepage(this)">'+(pageIndex+1)+'</a></li>').bind("click",{"newPage":pageIndex},function(event){
+                    currentPage = event.data["newPage"];
+                    $table.trigger("paging");
+                        //触发分页函数
+                    }).appendTo($pager);
+                    $pager.append(" ");
+
+            }	 
+            $pager.appendTo($('nav#pager_buyer'));
+            $table.trigger("paging");
+
+            var $page = $('a#page_buyer:first');
+            $page.parents().addClass('active');
+                
+        });
+
+        $(function(){
+            var $table = $('table#transaction');
+            var currentPage = 0;//当前页默认值为0
+            var pageSize = 10;//每一页显示的数目
+            $table.bind('paging',function(){
+                $table.find('tbody tr').hide().slice(currentPage*pageSize,(currentPage+1)*pageSize).show();
+            });	 
+            var sumRows = $table.find('tbody tr').length;
+            var sumPages = Math.ceil(sumRows/pageSize);//总页数
+            
+            var $pager = $('ul#pager_trans');  //新建div，放入a标签,显示底部分页码
+            for(var pageIndex = 0 ; pageIndex<sumPages ; pageIndex++){
+                $('<li class="page-item_trans"><a id="page_trans" class="page-link" οnclick="changepage(this)">'+(pageIndex+1)+'</a></li>').bind("click",{"newPage":pageIndex},function(event){
+                    currentPage = event.data["newPage"];
+                    $table.trigger("paging");
+                        //触发分页函数
+                    }).appendTo($pager);
+                    $pager.append(" ");
+
+            }	 
+            $pager.appendTo($('nav#pager_trans'));
+            $table.trigger("paging");
+
+            var $page = $('a#page_trans:first');
+            $page.parents().addClass('active');
+                
+        });
+
+        $(document).on('click','a#page',function () {
+            var all = $('li.page-item');
+            all.removeClass('active');
+            $(this).parents().addClass('active');
+        })
+
+        $(document).on('click','a#page_seller',function () {
+            var all = $('li.page-item_seller');
+            all.removeClass('active');
+            $(this).parents().addClass('active');
+        })
+
+        $(document).on('click','a#page_buyer',function () {
+            var all = $('li.page-item_buyer');
+            all.removeClass('active');
+            $(this).parents().addClass('active');
+        })
+
+        $(document).on('click','a#page_trans',function () {
+            var all = $('li.page-item_trans');
+            all.removeClass('active');
+            $(this).parents().addClass('active');
+        })
+
+        // Label effect
+        $(document).ready(function () {
+            $('input.key').focus(function () {
+                $(this).siblings('label.key').addClass('active');
+                
+            });
+            $('input.nickname').focus(function () {
+                $(this).siblings('label.nickname').addClass('active');
+                
+            });
+
+            $('input.key').blur(function () {
+            // label effect
+                if ($(this).val().length > 0) {
+                    $(this).siblings('label.key').addClass('active');
+                } else {
+                    $(this).siblings('label.key').removeClass('active');
+                }
+            });
+            $('input.nickname').blur(function () {
+            // label effect
+                if ($(this).val().length > 0) {
+                    $(this).siblings('label.nickname').addClass('active');
+                } else {
+                    $(this).siblings('label.nickname').removeClass('active');
+                }
+            });
+        });
+
+        function addbot(){
+            var bot = $('div#bot').text();
+            var key = $('input.key').val();
+            var nickname = $('input.nickname').val();
+            var notyf = new Notyf({
+                duration: 2000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag': 'addbot',
+                    'bot' : bot,
+                    'key' : key,
+                    'nickname' : nickname,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'success'){
+                        notyf.success('申请成功。');
+                        setTimeout(function () { location.reload(); }, 1000);
+                    } else if(data['status'] == 'nobot'){
+                        notyf.error('请选择一个bot。');
+                    } else if(data['status'] == 'nokey'){
+                        notyf.error('请输入key。');
+                    }
+
+                },
+                error : function(xhr){
+                }   
+            });
+        }
+
+        function selectbot(obj){
+            var bot = $(obj).text();
+            $('div#bot').html(bot);
+        }
+
+        function deletelisting(obj){
+            var div = $(obj).parent().parent();
+            var divpk = div.children('div#modalpk');
+            var num_listing = divpk.children("span#spanpk").text();
+            var notyf = new Notyf({
+                duration: 2000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag' : 'delete_listing',
+                    'num_listing': num_listing,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'success'){
+                        notyf.success('删除成功。');
+                        setTimeout(function () { location.reload(); }, 1000);
+                    }
+                    if(data['status'] == 'listing'){
+                        notyf.error('该key已被列出，请下架后重试。');
+                        setTimeout(function () { location.reload(); }, 2000);
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function delete_my_listing(obj){
+            var div = $(obj).parent().parent();
+            var divpk = div.children('div#listingpk');
+            var num_listing = divpk.children("span#spanpk").text();
+            var notyf = new Notyf({
+                duration: 2000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag' : 'delete_my_listing',
+                    'num_listing': num_listing,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'success'){
+                        notyf.success('删除成功。');
+                        setTimeout(function () { location.reload(); }, 1000);
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function delete_my_bidding(obj){
+            var div = $(obj).parent().parent();
+            var divpk = div.children('div#biddingpk');
+            var num_listing = divpk.children("span#spanpk").text();
+            var notyf = new Notyf({
+                duration: 2000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag' : 'delete_my_bidding',
+                    'num_listing': num_listing,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'success'){
+                        notyf.success('删除成功。');
+                        setTimeout(function () { location.reload(); }, 1000);
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function passingpk(obj){
+            var tr = $(obj).parent().parent();
+            var num_listing = tr.children("td#num_listing").text();    
+            $('div#modalpk').html('确认删除 # <span id=\"spanpk\">'+ num_listing + '</span> ？');   
+            $('#confirmdelete-modal').modal('show');
+        }
+
+        function passing_listing_pk(obj){
+            var tr = $(obj).parent().parent();
+            var num_listing = tr.children("td#num_my_listing").text();    
+            $('div#listingpk').html('确认删除 # <span id=\"spanpk\">'+ num_listing + '</span> ？');   
+            $('#my_confirmdelete-modal').modal('show');
+        }
+
+        function passing_bidding_pk(obj){
+            var tr = $(obj).parent().parent();
+            var num_listing = tr.children("td#num_my_listing").text();    
+            $('div#biddingpk').html('确认删除 # <span id=\"spanpk\">'+ num_listing + '</span> ？');   
+            $('#bid_delete-modal').modal('show');
+        }
+
+
+    </script>
+    
+
+    <script type="text/javascript">
+        function listingbot(obj){
+            var bot = $(obj).text();
+            $('input#listing-bot').val(bot);
+            var css_none = {
+                display: 'none',
+            };
+            var css = {
+                display: 'block',
+            };
+            $('p.select-box__input_key-text').css(css_none);
+            $("p#请选择一个Key").css(css);
+            $('li#keylist').remove();
+            $('div#keylist').remove();
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag' : 'step1',
+                    'userbot' : bot,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    var html = '';
+                    var html2 = '';
+                    var keys = eval("(" + data + ")");
+                    for(var i=0;i<keys.length;i++){   
+                        var ls = keys[i]; 
+                        html2 += "<div id='keylist' class=\"select-box__value\"><input class=\"select-box__input\" type=\"radio\" id=\"" + bot + "-key\" name=\"key\"/><p id=\"" + ls.fields.key + "\" class=\"select-box__input_key-text\">"+ ls.fields.key +"</p></div>";
+                        html +="<li id='keylist'><label class=\"select-box__option\" for=\"" + bot +"-key\" aria-hidden=\"aria-hidden\" onclick=\"listingkey(this)\"><span>("+ ls.fields.key_nickname + ")</span>" + ls.fields.key +"</label></li>";
+                    }
+                    $('div#key-default-up').after(html2);
+                    $("li#key-default").after(html);
+
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function listingkey(obj){
+            var key = $(obj).text();
+            var array= new Array();
+            $('input#listing-key').val(key); 
+            if(key != '请选择一个Key'){
+                array = key.split(")"); 
+                key = array[1];
+            }
+            var css = {
+                display: 'block',
+            };
+            var css_none = {
+                display: 'none',
+            };
+            $('p.select-box__input_key-text').css(css_none);
+            $("p#" + key +"").css(css);
+        }
+
+
+        $(window).load(function(){
+            $("input:radio[id='generalradio']")[0].checked = true;
+            $("input:radio[id='bidgeneralradio']")[0].checked = true;
+        });
+
+        function GeneralTypeChange(){
+            $("div.customlistingform").hide();
+            $("div.generallistingform").show();
+        }
+        function CustomTypeChange(){
+            $("div.customlistingform").show();
+            $("div.generallistingform").hide();
+        }
+        function GeneralTypeChangeEdit(){
+            $("div.customeditingform").hide();
+            $("div.generaleditingform").show();
+        }
+        function CustomTypeChangeEdit(){
+            $("div.customeditingform").show();
+            $("div.generaleditingform").hide();
+        }
+
+        $("input#general-start").flatpickr({
+            minDate: "today",
+        });
+
+        $("input#general-end").flatpickr({
+            minDate: "today",
+        });
+
+        $("input#custom-start").flatpickr({
+                minDate: "today",
+                maxDate: new Date().fp_incr(2),
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+        });
+
+        $("input#custom-end").flatpickr({
+                minDate: "today",
+                maxDate: new Date().fp_incr(2),
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+        });
+
+        $("input#bid-general-start").flatpickr({
+            minDate: "today",
+        });
+
+        $("input#bid-general-end").flatpickr({
+            minDate: "today",
+        });
+
+        $("input#bid-custom-start").flatpickr({
+                minDate: "today",
+                maxDate: new Date().fp_incr(2),
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+        });
+
+        $("input#bid-custom-end").flatpickr({
+                minDate: "today",
+                maxDate: new Date().fp_incr(2),
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+        });
+
+        function num(obj){
+            obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d).*$/,'$1$2.$3');
+        }
+
+        $(window).load(function(){
+            $.ajax({
+                url : "https://api.it120.cc/gooking/forex/rate?fromCode=CNY&toCode=USD",
+                type : 'GET',
+                dataType: 'json',
+                success : function(data){
+                    var rate = data.data.rate;
+                    $('i#exchange').html(rate);
+                },
+                error : function(xhr){
+                }
+            });
+        });
+
+        $("#rmb").bind("input propertychange",function(event){
+            $.ajax({
+                url : "https://api.it120.cc/gooking/forex/rate?fromCode=CNY&toCode=USD",
+                type : 'GET',
+                dataType: 'json',
+                success : function(data){
+                    var rate = data.data.rate;
+                    $("#usd").val(($("#rmb").val()/rate).toFixed(2))
+                },
+                error : function(xhr){
+                }
+            });
+        });
+        $("#usd").bind("input propertychange",function(event){
+            $.ajax({
+                url : "https://api.it120.cc/gooking/forex/rate?fromCode=CNY&toCode=USD",
+                type : 'GET',
+                dataType: 'json',
+                success : function(data){
+                    var rate = data.data.rate;
+                    $("#rmb").val(($("#usd").val()*rate).toFixed(2))
+                },
+                error : function(xhr){
+                }
+            });
+        });
+
+        $("#bid-rmb").bind("input propertychange",function(event){
+            $.ajax({
+                url : "https://api.it120.cc/gooking/forex/rate?fromCode=CNY&toCode=USD",
+                type : 'GET',
+                dataType: 'json',
+                success : function(data){
+                    var rate = data.data.rate;
+                    $("#bid-usd").val(($("#bid-rmb").val()/rate).toFixed(2))
+                },
+                error : function(xhr){
+                }
+            });
+        });
+        $("#bid-usd").bind("input propertychange",function(event){
+            $.ajax({
+                url : "https://api.it120.cc/gooking/forex/rate?fromCode=CNY&toCode=USD",
+                type : 'GET',
+                dataType: 'json',
+                success : function(data){
+                    var rate = data.data.rate;
+                    $("#bid-rmb").val(($("#bid-usd").val()*rate).toFixed(2))
+                },
+                error : function(xhr){
+                }
+            });
+        });
+
+        function addlisting(){
+            var notyf = new Notyf({
+                duration: 2000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+            var bot = $("input#listing-bot").val();
+            var key = $("input#listing-key").val();
+            if($('#generalradio').is(':checked') == true){
+                var listing_type = $('#general-label').text();
+                var start_time = $('input#general-start').val();
+                var end_time = $("input#general-end").val();
+            }
+            if($('#customradio').is(':checked') == true){
+                console.log('yes')
+                var listing_type = $('#custom-label').text();
+                var start_time = $('input#custom-start').val();
+                var end_time = $("input#custom-end").val();
+            }
+            var rmb_price = $("input[id='rmb']").val();
+            var usd_price = $("input[id='usd']").val();
+
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag' : 'submit_listing',
+                    'bot' : bot,
+                    'key' : key,
+                    'start_time' : start_time,
+                    'end_time' : end_time,
+                    'rmb_price' : rmb_price,
+                    'usd_price': usd_price,
+                    'listing_type':listing_type,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'SUCCESS'){
+                        $('listing-modal').modal('hide');
+                        $('listing-form').trigger("reset");
+                        notyf.success('列出成功。')
+                        setTimeout(function () { location.reload(); }, 2000);
+                    }
+                    if(data['status'] == 'FAIL'){
+                        notyf.error("该key在该时间段已被租出。");
+                    }
+                    if(data['status'] == 'bot'){
+                        notyf.error("请选择一个bot。");
+                    }
+                    if(data['status'] == 'key'){
+                        notyf.error("请选择一个key。");
+                    }
+                    if(data['status'] == 'time'){
+                        notyf.error("请选择正确的时间。");
+                    }
+                    if(data['status'] == 'price'){
+                        notyf.error("请填写价格。");
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function edit(obj){
+            $(obj).parent().children('#edit-modal').modal('show');
+        }
+
+
+        $("td#edit").each(function(){
+            var tr = $(this).parent();
+            var bot = tr.children('th#bot').children().children('div.media-body').children().text();
+            var key = tr.children("td#key").text();
+            var rental_type = $.trim(tr.children("td#listing_type").text());
+            var start_time = $.trim(tr.children("td#start_time").text());
+            var end_time = $.trim(tr.children("td#end_time").text());
+            var num_listing = $.trim(tr.children("td#num_my_listing").text());
+            var body = $(this).children("div#edit-modal").children("div.modal-dialog").children("div.modal-content").children("div.modal-body")
+            body.children('div.row').children("div#botinmodal").html(bot);
+            body.children("div#keyinmodal").html(key);
+            body.children("div#pkinmodal").html(num_listing);
+
+
+            var item1 = body.children('.generaleditingform').children('div.row').children("input#edit-general-start")
+            var item2 = body.children('.generaleditingform').children('div.row').children("input#edit-general-end")
+            var item3 = body.children('.customeditingform').children('div.row').children("input#edit-custom-start")
+            var item4 = body.children('.customeditingform').children('div.row').children("input#edit-custom-end")
+            item1.flatpickr({
+                minDate: "today",
+            });
+            item2.flatpickr({
+                minDate: "today",
+            });
+            item3.flatpickr({
+                minDate: "today",
+                maxDate: new Date().fp_incr(2),
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+            });
+            item4.flatpickr({
+                minDate: "today",
+                maxDate: new Date().fp_incr(2),
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+            }); 
+
+            if(rental_type == '普通租赁'){
+                try{
+                    $("input:radio[id='" + num_listing + "edit_generalradio']")[0].checked = true;
+                    var time = new Array();
+                    time = start_time.split(" ")
+                    item1.val(time[0]);
+                    time = end_time.split(" ")
+                    item2.val(time[0]);
+                } catch(e){}
+                
+            } else if(rental_type == '自定义租赁'){
+                try{
+                    $("input:radio[id='" + num_listing + "edit_customradio']")[0].checked = true;
+                    item3.val(start_time);
+                    item4.val(end_time);
+                } catch(e){}
+            }
+
+            rmb = body.children('div.row').children('div#rmbcol').children().children('input.price');
+            usd = body.children('div.row').children('div#usdcol').children().children('input.price');
+            rmb.bind("input propertychange",function(event){
+                var rmb_val = $(this).val();
+                var usd = $(this).parent().parent().siblings('div#usdcol').children().children('input.price');
+                $.ajax({
+                    url : "https://api.it120.cc/gooking/forex/rate?fromCode=CNY&toCode=USD",
+                    type : 'GET',
+                    dataType: 'json',
+                    success : function(data){
+                        var rate = data.data.rate;
+                        usd.val((rmb_val/rate).toFixed(2))
+                    },
+                    error : function(xhr){
+                    }
+                });
+            });
+            usd.bind("input propertychange",function(event){
+                var usd_val = $(this).val();
+                var rmb = $(this).parent().parent().siblings('div#rmbcol').children().children('input.price');
+                $.ajax({
+                    url : "https://api.it120.cc/gooking/forex/rate?fromCode=CNY&toCode=USD",
+                    type : 'GET',
+                    dataType: 'json',
+                    success : function(data){
+                        var rate = data.data.rate;
+                        rmb.val((usd_val*rate).toFixed(2))
+                    },
+                    error : function(xhr){
+                    }
+                });
+            });
+        });
+
+        function submit_editing(obj){
+            var notyf = new Notyf({
+                duration: 2000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+            var div = $(obj).parent().parent().parent();
+            var body = div.children('.modal-body')
+            var num_listing = $.trim(body.children('#pkinmodal').text());
+            var general_radio = body.children('.edit-general').children('input#' + num_listing + 'edit_generalradio');
+            var general_start_time = body.children('.generaleditingform').children('.row').children('#edit-general-start');
+            var general_end_time = body.children('.generaleditingform').children('.row').children('#edit-general-end');
+            var custom_radio = body.children('.edit-custom').children('input#'+ num_listing + 'edit_customradio');
+            var custom_start_time = body.children('.customeditingform').children('.row').children('#edit-custom-start');
+            var custom_end_time = body.children('.customeditingform').children('.row').children('#edit-custom-end');
+            if(general_radio.is(':checked') == true){
+                var listing_type = $.trim($('#general-label').text());
+                var start_time = general_start_time.val();
+                var end_time = general_end_time.val();
+            }
+            if(custom_radio.is(':checked') == true){
+                var listing_type = $.trim($('#custom-label').text());
+                var start_time = custom_start_time.val();
+                var end_time = custom_end_time.val();
+            }
+            var rmb_price = body.children('div.row').children('div#rmbcol').children().children('input.price').val();
+            var usd_price = body.children('div.row').children('div#usdcol').children().children('input.price').val();
+
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag' : 'submit_editing',
+                    'num_listing': num_listing,
+                    'start_time' : start_time,
+                    'end_time' : end_time,
+                    'rmb_price' : rmb_price,
+                    'usd_price' : usd_price,
+                    'listing_type':listing_type,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'SUCCESS'){
+                        $('edit-modal').modal('hide');
+                        notyf.success('修改成功。');
+                        setTimeout(function () { location.reload(); }, 2000);
+                    }
+                    if(data['status'] == 'FAIL'){
+                        notyf.error("该key在该时间段已被租出！");
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function submit_bid_editing(obj){
+            var notyf = new Notyf({
+                duration: 2000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+            var div = $(obj).parent().parent().parent();
+            var body = div.children('.modal-body')
+            var num_listing = $.trim(body.children('#pkinmodal').text());
+            var general_radio = body.children('.edit-general').children('input#' + num_listing + 'edit_generalradio');
+            var general_start_time = body.children('.generaleditingform').children('.row').children('#edit-general-start');
+            var general_end_time = body.children('.generaleditingform').children('.row').children('#edit-general-end');
+            var custom_radio = body.children('.edit-custom').children('input#'+ num_listing + 'edit_customradio');
+            var custom_start_time = body.children('.customeditingform').children('.row').children('#edit-custom-start');
+            var custom_end_time = body.children('.customeditingform').children('.row').children('#edit-custom-end');
+            if(general_radio.is(':checked') == true){
+                var listing_type = $.trim($('#general-label').text());
+                var start_time = general_start_time.val();
+                var end_time = general_end_time.val();
+            }
+            if(custom_radio.is(':checked') == true){
+                var listing_type = $.trim($('#custom-label').text());
+                var start_time = custom_start_time.val();
+                var end_time = custom_end_time.val();
+            }
+            var rmb_price = body.children('div.row').children('div#rmbcol').children().children('input.price').val();
+            var usd_price = body.children('div.row').children('div#usdcol').children().children('input.price').val();
+
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag' : 'submit_bid_editing',
+                    'num_listing': num_listing,
+                    'start_time' : start_time,
+                    'end_time' : end_time,
+                    'rmb_price' : rmb_price,
+                    'usd_price' : usd_price,
+                    'listing_type':listing_type,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'SUCCESS'){
+                        $('edit-modal').modal('hide');
+                        notyf.success('修改成功。');
+                        setTimeout(function () { location.reload(); }, 2000);
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function changetab1(){
+            var css = {
+                display: 'block',
+            };
+            var css_none = {
+                display: 'none',
+            };
+            $('div.tab-pane').css(css_none);
+            $('div#v-pills-home').css(css);
+        }
+
+        function changetab2(){
+            var css = {
+                display: 'block',
+            };
+            var css_none = {
+                display: 'none',
+            };
+            $('div.tab-pane').css(css_none);
+            $('div#v-pills-profile').css(css);
+        }
+
+        function changetab3(){
+            var css = {
+                display: 'block',
+            };
+            var css_none = {
+                display: 'none',
+            };
+            $('div.tab-pane').css(css_none);
+            $('div#v-pills-messages').css(css);
+        }
+
+        function changetab4(){
+            var css = {
+                display: 'block',
+            };
+            var css_none = {
+                display: 'none',
+            };
+            $('div.tab-pane').css(css_none);
+            $('div#v-pills-settings').css(css);
+        }
+
+        function changetab5(){
+            var css = {
+                display: 'block',
+            };
+            var css_none = {
+                display: 'none',
+            };
+            $('div.tab-pane').css(css_none);
+            $('div#v-pills-sell').css(css);
+        }
+
+        function changetab6(){
+            var css = {
+                display: 'block',
+            };
+            var css_none = {
+                display: 'none',
+            };
+            $('div.tab-pane').css(css_none);
+            $('div#v-pills-buy').css(css);
+        }
+
+        function biddingbot(obj){
+            var bot = $(obj).text();
+            $('input#bidding-bot').val(bot);
+        }
+
+        function addbidding(){
+            var notyf = new Notyf({
+                duration: 2000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+            var bot = $("input#bidding-bot").val();
+            if($('#bidgeneralradio').is(':checked') == true){
+                var listing_type = $('#general-label').text();
+                var start_time = $('input#bid-general-start').val();
+                var end_time = $("input#bid-general-end").val();
+            }
+            if($('#bidcustomradio').is(':checked') == true){
+                var listing_type = $('#custom-label').text();
+                var start_time = $('input#bid-custom-start').val();
+                var end_time = $("input#bid-custom-end").val();
+            }
+            var rmb_price = $("input[id='bid-rmb']").val();
+            var usd_price = $("input[id='bid-usd']").val();
+
+            console.log(start_time);
+            console.log(end_time);
+            console.log(listing_type);
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag' : 'submit_bidding',
+                    'bot' : bot,
+                    'start_time' : start_time,
+                    'end_time' : end_time,
+                    'rmb_price' : rmb_price,
+                    'usd_price': usd_price,
+                    'listing_type':listing_type,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'success'){
+                        $('bidding-modal').modal('hide');
+                        $('bidding-form').trigger("reset");
+                        notyf.success('列出成功。')
+                        setTimeout(function () { location.reload(); }, 2000);
+                    }
+                    if(data['status'] == 'bot'){
+                        notyf.error("请选择一个bot。");
+                    }
+                    if(data['status'] == 'time'){
+                        notyf.error("请选择正确的时间。");
+                    }
+                    if(data['status'] == 'price'){
+                        notyf.error("请填写价格。");
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function pay(obj){
+            var tr = $(obj).parent().parent();
+            var price = $.trim(tr.children('td#price').text());
+            var num_bidding = $.trim(tr.children('td#num_my_listing').text());
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag' : 'pay',
+                    'price': price,
+                    'num_bidding': num_bidding,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    $('p#bidding_pk').html(num_bidding);
+                    $("#orderstatus-modal").modal('show');
+                    window.open(data);
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function success(obj){
+            var tr = $(obj).parent().parent();
+            var num_bidding = tr.children('p#bidding_pk').text();
+            console.log(num_bidding);
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag': 'check_success',
+                    'num_bidding': num_bidding,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'Payment Success!'){
+                        $("#orderstatus-modal").modal('hide');
+                        window.location.href = 'http://localhost:8000/user/mybot/';
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function unsuccess(obj){
+            var tr = $(obj).parent().parent();
+            var num_bidding = tr.children('p#bidding_pk').text();
+            console.log(num_bidding);
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag': 'unsuccess',
+                    'num_bidding': num_bidding,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    $("#orderstatus-modal").modal('hide');
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function comfirm_reset(obj){
+            var tr = $(obj).parent().parent();
+            var num_listing = tr.children('td#num_sell').text();
+            var buy_type = tr.children('td#buy_type').text();
+            console.log(num_listing)
+            console.log(buy_type)
+            $.ajax({
+                url : "http://localhost:8000/user/mybot/",
+                type : 'POST',
+                data : {
+                    'flag' : 'submit_reset',
+                    'num_listing': num_listing,
+                    'buy_type': buy_type,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    location.reload();
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function reset(obj){
+            $(obj).parent().children('#reset-modal').modal('show');
+        }
+
+        $("td#buy_reset").each(function(){
+            var tr = $(this).parent();
+            var start_time = tr.children("td#start_time").text();
+            var end_time = tr.children("td#end_time").text();
+            var num_listing = tr.children("td#num_listing").text();
+            var buy_type = tr.children('td#buy_type').text();
+            $(this).children("div#reset-modal").children("div.modal-dialog").children("div.modal-content").children("p#pk").html(num_listing);
+            $(this).children("div#reset-modal").children("div.modal-dialog").children("div.modal-content").children("p#buy_type").html(buy_type);
+
+            var item = $(this).children("div#reset-modal").children("div.modal-dialog").children("div.modal-content").children("div.modal-body").children("input#reset")
+            item.flatpickr({
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                minDate: start_time,
+                maxDate: end_time,
+            });
+        })
+
+        function resetnow(obj){
+            var tr = $(obj).parent().parent();
+            var num_listing = tr.children('p#pk').text();
+            var buy_type = tr.children('p#buy_type').text();
+            $.ajax({
+                url : "http://localhost:8000/user/purchase/",
+                type : 'POST',
+                data : {
+                    'flag': 'resetnow',
+                    'num_listing': num_listing,
+                    'type': buy_type,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    $(obj).parent().parent().parent().parent().modal('hide');
+                    location.reload();
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function submitreset(obj){
+            var tr = $(obj).parent().parent();
+            var num_listing = tr.children('p#pk').text();
+            var buy_type = tr.children('p#buy_type').text();
+            var modal = tr.children('div.modal-body');
+            var time = modal.children('input#reset').val();
+            $.ajax({
+                url : "http://localhost:8000/user/purchase/",
+                type : 'POST',
+                data : {
+                    'flag': 'resetlater',
+                    'num_listing': num_listing,
+                    'type': buy_type,
+                    'time': time,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    $(obj).parent().parent().parent().parent().modal('hide');
+                    location.reload();
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+    </script>
+{% endblock %}
+
+
+
+

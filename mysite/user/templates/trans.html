@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+<!--页面标题-->
+{% block title %}
+    我的网站|个人资料
+{% endblock %}
+
+{% block header_extend %}
+{% endblock %}
+
+{% block nav_home_active %}active{% endblock %}
+
+<!--页面内容-->
+{% block content %}
+    <!-- action为空表示提交给当前页面 -->
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1">
+                {% if user.is_authenticated %}
+                    <h2>Hello, {{ user.username}}!</h2>
+                    <ul id='myTabs' class="nav nav-tabs justify-content-center">
+                        <li class="nav-item"><a class='nav-link active' href="#processing" data-bs-toggle="tab">Processing</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#failed" data-bs-toggle="tab">Failed</a></li>
+                        <li class="nav-item" ><a class="nav-link" href="#succeed" data-bs-toggle="tab">Succeed</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="processing">
+                            <table id='bot_table' class="table">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">#Trans</th>
+                                        <th scope="col">User</th>
+                                        <th scope="col">Account</th>
+                                        <th scope="col">Amount</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for data in all_data %}
+                                        {% if data.status == 'Processing' %}
+                                        <tr>
+                                            <td id="pk">{{ data.pk }}</td>
+                                            <td id="user">{{ data.user }}</td>
+                                            <td id="account">{{ data.alipay_id }}</td>
+                                            <td id="amount">{{ data.amount }}</td>
+                                            <td id="status">{{ data.status }}</td>
+                                            <td id="confirm">
+                                                <button type="button" class="btn btn-primary" onclick="confirmwithdrawal(this)">Confirm</button>
+                                            </td>
+                                            <td id="deny">
+                                                <button type="button" class="btn btn-primary" onclick="denywithdrawal(this)">Deny</button>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade" id="succeed">
+                            <table id='bot_table' class="table">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">User</th>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Bot</th>
+                                        <th scope="col">Key</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for data in all_data %}
+                                        {% if data.status == 'Paid' %}
+                                        <tr>
+                                            <td id="user">{{ data.user_id }}</td>
+                                            <td id="ID">{{ data.user_discord }}</td>
+                                            <td id="bot">{{ data.bot }}</td>
+                                            <td id="key">{{ data.key }}</td>
+                                            <td id="status">{{ data.status }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade" id="failed">
+                            <table id='bot_table' class="table">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">User</th>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Bot</th>
+                                        <th scope="col">Key</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for data in all_data %}
+                                        {% if data.status == 'Not Verified' %}
+                                        <tr>
+                                            <td id="user">{{ data.user_id }}</td>
+                                            <td id="ID">{{ data.user_discord }}</td>
+                                            <td id="bot">{{ data.bot }}</td>
+                                            <td id="key">{{ data.key }}</td>
+                                            <td id="status">{{ data.status }}</td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                      </div>
+                {% else %}
+                    <span>未登录，跳转到首页。。。</span>
+                    <script text='text/javascript'>
+                        window.location.href = '/'
+                    </script>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}    
+
+
+{% block script_expend %}
+    <script>
+        function confirmwithdrawal(obj){
+            var tr = $(obj).parent().parent();
+            var pk = tr.children('#pk').text();
+            console.log(pk)
+            $.ajax({
+                url : "http://localhost:8000/user/transactions/",
+                type : 'POST',
+                data : {
+                    'flag': 'confirm',
+                    'pk': pk,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    alert('Successfully Withdrawal!');
+                    location.reload();
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function denywithdrawal(obj){
+            var tr = $(obj).parent().parent();
+            var pk = tr.children('#pk').text();
+            console.log(pk)
+            $.ajax({
+                url : "http://localhost:8000/user/transactions/",
+                type : 'POST',
+                data : {
+                    'flag': 'deny',
+                    'pk': pk,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    alert('Successfully Withdrawal!');
+                    location.reload();
+                },
+                error : function(xhr){
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+

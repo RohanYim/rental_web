@@ -1,0 +1,642 @@
+{% extends 'base.html' %}
+
+<!--页面标题-->
+{% block title %}
+    我的网站|个人资料
+{% endblock %}
+
+{% load static %}
+{% block header_extend %}
+    <link rel="stylesheet" href="{% static 'auserinfo.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script> 
+{% endblock %}
+
+{% block nav_home_active %}active{% endblock %}
+
+<!--页面内容-->
+{% block content %}
+<div id="container" class="container">
+    <div class="main-body">    
+          <div class="row gutters-sm">
+            <div class="col-md-4 mb-3">
+              <div class="card">
+                <div class="card-body">
+                  <div class="d-flex flex-column align-items-center text-center">
+                    {% if user.profile.connected %}
+                        <img src="{{ user.profile.discordavatar }}" alt="Admin" class="rounded-circle" width="150">
+                    {% else %}
+                        <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Admin" class="rounded-circle" width="150"> 
+                    {% endif %}
+                    <div class="mt-3">
+                      <h4>{{ user.username }}</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card mt-3">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                    <h6 class="mb-0" style="font-weight:bold"><img id="icon" src="https://i.imgur.com/KE4OYDW.png" alt="" style="width: 24px;height: 24px;">Discord</h6>
+                    {% if user.profile.connected %}
+                        <span class="text-secondary"><a id="connect" href="{% url 'disconnect' %}">{{ user.profile.discordid }}</a></span>
+                    {% else %}
+                        {% if messages %}
+                            <script>
+                                var notyf = new Notyf({
+                                    duration: 3000,
+                                    position: {
+                                        x: 'center',
+                                        y: 'top',
+                                    },
+                                });
+                            </script> 
+                            {% for msg in messages %}
+                                {% if msg.tags == 'success' %}
+                                    <script>
+                                        notyf.success('{{ msg.message }}');
+                                    </script>
+                                {% endif %}
+                                {% if msg.tags == 'error' %}
+                                    <script>
+                                        notyf.error('{{ msg.message }}');
+                                    </script>
+                                {% endif %}
+
+                            {% endfor %} 
+
+                        {% endif %}
+                        <span class="text-secondary"><a id="connect" href="{% url 'oauth2_login' %}">Discord授权</a></span>
+                    {% endif %}
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                    <h6 style="font-weight:bold" class="mb-0"><img id="icon" src="https://i.imgur.com/tiRj4v4.png" alt="" style="width: 24px;height: 24px;">Twitter</h6>
+                    <span class="text-secondary">{{ user.seller.twitter_link }}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                    <h6 style="font-weight:bold"class="mb-0"><img id="icon" src="https://i.imgur.com/97yzGzU.png" alt="" style="width: 24px;height: 24px;">支付宝</h6>
+                    <span class="text-secondary">{{ user.wallet.alipay_id }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="card mb-3">
+                <div class="card-body">
+                  <div class="row">
+                    <div id="titleemail" class="col-sm-3">
+                      <h6 id="h6title" class="mb-0">邮箱</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      <input id="change" type="text" value="{{ user.email }}">
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div id="titletimezone" class="col-sm-3">
+                      <h6 id="h6title" class="mb-0">时区</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      <span id="radio"><input type="radio" name="timezone" id="GMT+8" value="GMT+8"><label for="GMT+8" style="margin-bottom: 10px;color: black;">GMT+8(亚洲)</label></span>
+                      <span id="radio"><input type="radio" name="timezone" id="GMT-4" value="GMT-4"><label for="GMT-4" style="margin-bottom: 10px;color: black;">GMT-4(北美)</label></span>
+                      <span id="radio"><input type="radio" name="timezone" id="GMT+1" value="GMT+1"><label for="GMT+1" style="margin-bottom: 10px;color: black;">GMT+1(欧洲)</label></span>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <button id="edit" class="btn btn-info" onclick="savechanges()">保存更改</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row gutters-sm">
+                <div class="col-sm-6 mb-3">
+                  <div class="card h-100">
+                    <div class="card-body">
+                        <div class="bg-white rounded-lg p-5 shadow">
+                            <h2 class="h6 font-weight-bold text-center mb-4">卖家面板</h2>
+                    
+                            <!-- Progress bar 1 -->
+                            <div class="progress mx-auto" data-value='30'>
+                                <span class="progress-left">
+                                                <span class="progress-bar border-primary"></span>
+                                </span>
+                                <span class="progress-right">
+                                                <span class="progress-bar border-primary"></span>
+                                </span>
+                                <div class="progress-value w-100 h-100 rounded-circle d-flex align-items-center justify-content-center">
+                                    <div class="h2 font-weight-bold">Level.<span>{{ seller_info.level }}</span></div>
+                                </div>
+                            </div>
+                            <!-- END -->
+                    
+                            <!-- Demo info -->
+                            <div class="row text-center mt-4">
+                                <div class="col-6 border-right">
+                                    <div class="h4 font-weight-bold mb-0">{{ seller_info.sell_count }}</div><span class="small text-gray">售出数</span>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h4 font-weight-bold mb-0">{{ seller_info.seller_fee }}%</div><span class="small text-gray">费用</span>
+                                </div>
+                            </div>
+                            <!-- END -->
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 mb-3">
+                  <div class="card h-100">
+                    <div class="card-body">
+                        <div class="bg-white rounded-lg p-5 shadow">
+                            <h2 class="h6 font-weight-bold text-center mb-4">买家面板</h2>
+                    
+                            <!-- Progress bar 1 -->
+                            <div class="progress mx-auto" data-value='30'>
+                                <span class="progress-left">
+                                                <span class="progress-bar border-primary"></span>
+                                </span>
+                                <span class="progress-right">
+                                                <span class="progress-bar border-primary"></span>
+                                </span>
+                                <div class="progress-value w-100 h-100 rounded-circle d-flex align-items-center justify-content-center">
+                                    <div class="h2 font-weight-bold">Level.<span>{{ buyer_info.level }}</span></div>
+                                </div>
+                            </div>
+                            <!-- END -->
+                    
+                            <!-- Demo info -->
+                            <div class="row text-center mt-4">
+                                <div class="col-6 border-right">
+                                    <div class="h4 font-weight-bold mb-0">{{ buyer_info.buy_count }}</div><span class="small text-gray">租赁数</span>
+                                </div>
+                                <div class="col-6">
+                                    <div class="h4 font-weight-bold mb-0">1%</div><span class="small text-gray">返利</span>
+                                </div>
+                            </div>
+                            <!-- END -->
+                        </div>
+                        <div class="bg-white rounded-lg p-2 shadow" style="margin-top: 1em;">
+                            <p style="color: #95aac9;font-size: smaller;font-style: oblique;">1024 POINTS</p>
+                            <span>{{ buyer_info.points }}</span>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <div class="bg-white rounded-lg p-2 shadow" style="margin-top: 1em;">
+                                    <p style="color: #95aac9;font-size: smaller;font-style: oblique;">可提现金额</p>
+                                    <span>{{ wallet.withdraw_able }}</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="bg-white rounded-lg p-2 shadow" style="margin-top: 1em;">
+                                    <p style="color: #95aac9;font-size: smaller;font-style: oblique;">不可提现金额</p>
+                                    <span>{{ wallet.freeze }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="bg-white rounded-lg p-2 shadow" style="margin-top: 1em;">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <p style="color: #95aac9;font-size: smaller;font-style: oblique;">总金额</p>
+                                </div>
+                                
+                                <div class="d-flex bd-highlight mb-3">
+                                    
+                                    <div class="me-auto p-2">
+                                        <span>{{ wallet.total }}</span>
+                                        
+                                    </div>
+                                    <div class="p-2 bd-highlight">
+                                        <button id="withdraw" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#withdrawal-modal">提现</button>
+                                        <button id="topup" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#topup-modal">充值</button>
+                                    </div>
+                                    <div class="modal fade" id="withdrawal-modal" tabindex="-1" role="dialog">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">提现</h5>
+                                                    <button id="close" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <label  id="amount" for="amount">金额</label>
+                                                    <input class="withdrawal_amount" type="number" name="amount" id="amount" onkeyup="input_withdraw_fix(this)" required>
+                                                    <span class="error"></span>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <img id="alipay" src="https://i.imgur.com/VIhITOh.png" style="width: 20%;" onclick="alipaywithdrawal()">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal fade" id="topup-modal" tabindex="-1" role="dialog">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">充值</h5>
+                                                    <button id="close" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <label id="amount" for="amount">金额</label>
+                                                    <input class="topup_amount" type="number" name="amount" id="amount" min="1.00" onkeyup="input_fix(this)" required>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <img id="alipay" src="https://i.imgur.com/VIhITOh.png" style="width: 20%;" onclick="order()">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal fade" id="orderstatus-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    支付确认
+                                                </div>
+                                                <div id="modalpk" class="modal-body">
+                                                    <p>请在支付后完成确认</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" id="cancel" class="btn btn-primary" onclick="unsuccess()">取消订单</button>
+                                                    <button type="button" id="confirm" class="btn btn-primary" onclick="success()">我已完成支付</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                            
+                            
+                        </div>
+                    </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+    </div>
+{% endblock %}    
+
+{% block script_expend %}
+    <script type="text/javascript">
+        $("#verify-form").submit(function(){
+            // 异步提交
+            $.ajax({
+                url : "http://localhost:8000/user/user_info/",
+                type : 'POST',
+                data : $(this).serialize(),
+                cache : false,
+                success : function(data){
+                    console.log(data);
+                    if(data.status == "SUCCESS_ADDKEY"){
+                        $('#verify-modal').modal('hide');
+                        $('#verify-form')[0].reset();
+                        location.reload();
+                    }
+                    if(data.status == "ERROR_ADD_KEY"){
+                        $('#verify-modal').modal('hide');
+                        alert("Key already exists!");
+                    }
+                },
+                error : function(xhr){
+                    console.log(xhr);
+                }   
+            });
+            return false;
+        });
+    </script>
+    <script>
+        function change_to_input(obj){
+            var tr=$(obj).parent().parent().parent();
+            var bot = tr.children("td#bot").text();
+            var key = tr.children("td#key").text();
+            $("div#show_nickname"+ key).hide();
+            $("div#change_nickname"+ key).show();
+        }
+
+        function change_nickname(obj){
+            var tr=$(obj).parent().parent().parent();
+            var bot = tr.children("td#bot").text();
+            var key = tr.children("td#key").text();
+            var nickname = $("input[id='nickname"+ key +"']").val();
+
+            $.ajax({
+                url : "http://localhost:8000/user/user_info/",
+                type : 'POST',
+                data : {
+                    'flag': 'nickname',
+                    'bot': bot,
+                    'key': key,
+                    'nickname': nickname,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    console.log(data);
+                    if(data.status == "SUCCESS_NICKNAME"){
+                        location.reload();
+                    }
+                },
+                error : function(xhr){
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function confirm_reset(obj){
+            var tr=$(obj).parent().parent();
+            var bot = tr.children("td#bot").text();
+            var key = tr.children("td#key").text();
+
+            $.ajax({
+                url : "http://localhost:8000/user/user_info/",
+                type : 'POST',
+                data : {
+                    'flag': 'confirm_reset',
+                    'bot': bot,
+                    'key': key,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    console.log(data);
+                    if(data.status == "SUCCESS_CONFIRM_RESET"){
+                        location.reload();
+                    }
+                },
+                error : function(xhr){
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function twitter(){
+            var link = $("input#twitter_link").val();
+            $.ajax({
+                url : "http://localhost:8000/user/user_info/",
+                type : 'POST',
+                data : {
+                    'flag': 'twitter',
+                    'link': link,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    console.log(data);
+                    if(data.status == 'SUCCESS_ADD_LINK'){
+                        $('#twitter-modal').modal('hide');
+                    }
+                },
+                error : function(xhr){
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function order(){
+            var total = $('input.topup_amount').val();
+            var notyf = new Notyf({
+                duration: 1500,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+            $.ajax({
+                url : 'http://localhost:8000/user/user_info/',
+                type : 'POST',
+                data : {
+                    'flag': 'topup',
+                    'amount': total,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data == ''){
+                        notyf.error('请输入金额。');
+                    } else{
+                        $("#topup-modal").modal('hide');
+                        $("#orderstatus-modal").modal('show');
+                        window.open(data);
+                    }
+                },
+                error : function(xhr){
+                }   
+            });
+        }
+
+        function success(){
+            var notyf = new Notyf({
+                duration: 3000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+            $.ajax({
+                url : "http://localhost:8000/user/user_info/",
+                type : 'POST',
+                data : {
+                    'flag': 'check_success',
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'Payment Success!'){
+                        $("#topup-modal").modal('hide');
+                        $("#orderstatus-modal").modal('hide');
+                        notyf.success('充值成功。');
+                        setTimeout(function () { location.reload(); }, 1000);
+                    }
+
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function unsuccess(){
+            $.ajax({
+                url : "http://localhost:8000/user/user_info/",
+                type : 'POST',
+                data : {
+                    'flag': 'unsuccess',
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    $("#topup-modal").modal('hide');
+                    $("#orderstatus-modal").modal('hide');
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function alipaywithdrawal(){
+            var total = $('input.withdrawal_amount').val();
+            var notyf = new Notyf({
+                duration: 1500,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+            $.ajax({
+                url : 'http://localhost:8000/user/user_info/',
+                type : 'POST',
+                data : {
+                    'flag': 'withdrawal',
+                    'amount': total,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'success'){
+                        $('#withdrawal-modal').modal('hide');
+                        notyf.success('请求已发送。');
+                        setTimeout(function () { location.reload(); }, 1000);
+                    } else{
+                        notyf.error('请输入金额。');
+                    }
+
+                },
+                error : function(xhr){
+                }   
+            });
+        }
+
+        function alipay_account(){
+            var account = $('input#alipay_no').val();
+            $.ajax({
+                url : 'http://localhost:8000/user/user_info/',
+                type : 'POST',
+                data : {
+                    'flag': 'change_alipay_account',
+                    'account': account,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    alert('Successfully Changed!');
+                },
+                error : function(xhr){
+                }   
+            });
+        }
+
+        $(window).load(function(){
+            $("input:radio[id='{{ user.profile.timezone }}']")[0].checked = true;
+        });
+        
+        function savechanges(){
+          var timezone = $.trim($('input:radio[name=timezone]:checked').val());
+          var email = $('input#change').val();
+          var notyf = new Notyf({
+                duration: 3000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                },
+            });
+          $.ajax({
+                url : "http://localhost:8000/user/user_info/",
+                type : 'POST',
+                data : {
+                    'flag' : 'savechanges',
+                    'timezone': timezone,
+                    'email': email,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'success'){
+                      notyf.success('修改成功');
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        $(function() {
+            $(".progress").each(function() {
+
+            var value = $(this).attr('data-value');
+            var left = $(this).find('.progress-left .progress-bar');
+            var right = $(this).find('.progress-right .progress-bar');
+
+            if (value > 0) {
+                if (value <= 50) {
+                right.css('transform', 'rotate(' + percentageToDegrees(value) + 'deg)')
+                } else {
+                right.css('transform', 'rotate(180deg)')
+                left.css('transform', 'rotate(' + percentageToDegrees(value - 50) + 'deg)')
+                }
+            }
+
+            })
+
+            function percentageToDegrees(percentage) {
+
+            return percentage / 100 * 360
+
+            }
+
+        });
+
+        // Label effect
+        $(document).ready(function () {
+            $('input#amount').focus(function () {
+                $(this).siblings('label').addClass('active');
+                
+            });
+            $('input.withdrawal_amount').focus(function () {
+                $(this).attr( "placeholder" , "{{ wallet.withdraw_able }}" );
+            });
+
+            $('input#amount').blur(function () {
+            // label effect
+                if ($(this).val().length > 0) {
+                    $(this).siblings('label').addClass('active');
+                } else {
+                    $(this).siblings('label').removeClass('active');
+                }
+            });
+
+            $('input.withdrawal_amount').blur(function () {
+            // label effect
+                if ($(this).val().length > 0) {
+                    $(this).siblings('label').addClass('active');
+                    $(this).attr( "placeholder" , "{{ wallet.withdraw_able }}" );
+                } else {
+                    $(this).siblings('label').removeClass('active');
+                    $(this).attr( "placeholder" , "" );
+                }
+            });
+        });
+
+
+        function input_fix(obj){
+            obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d).*$/,'$1$2.$3');
+        }
+
+        function input_withdraw_fix(obj){
+            obj.value = obj.value.replace(/^(\-)*(\d+)\.(\d\d).*$/,'$1$2.$3');
+            var number = {{ wallet.withdraw_able }};
+            if ($('input.withdrawal_amount').val() > number) {
+                $('input.withdrawal_amount').siblings('span.error').text('输入金额已超出可提现金额').fadeIn();
+                $('input.withdrawal_amount').parents().siblings('.modal-footer').children().attr("onclick","");
+            } else{
+                $('input.withdrawal_amount').siblings('span.error').text('').fadeOut();
+                $('input.withdrawal_amount').parents().siblings('.modal-footer').children().attr("onclick","alipaywithdrawal()");
+            };
+        }
+    </script>
+{% endblock %}
+
+
+
+

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+<!--页面标题-->
+{% block title %}
+    Listing
+{% endblock %}
+
+{% block nav_botlist_active %}active{% endblock %}
+
+{% load static %}
+{% block header_extend %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'cart.css' %}">
+{% endblock %}
+
+<!--页面内容-->
+{% block content %}
+    <div class="container">
+        <div class="card shadow">
+            {% if info == 'success' %}
+                <h2>Payment Success!</h2>
+                <p>Please come back to cart page and confirm</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block script_expend %}
+
+{% endblock %}
+

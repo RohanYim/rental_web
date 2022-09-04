@@ -1,0 +1,20 @@
+button#addlisting{
+    position: relative;
+    left: 90%;
+    top: -30%;
+}
+
+div#listing{
+    position: relative;
+    top: 1.5em;
+}
+
+div#listingcard{
+    border-radius: .5rem;
+}
+
+img#alipay{
+    width: 20%;
+    cursor: pointer;
+    position: relative;
+}

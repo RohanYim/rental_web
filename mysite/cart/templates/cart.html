@@ -1,0 +1,499 @@
+{% extends 'base.html' %}
+
+<!--页面标题-->
+{% block title %}
+    Listing
+{% endblock %}
+
+{% block nav_botlist_active %}active{% endblock %}
+
+{% load static %}
+{% block header_extend %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'cart.css' %}">
+{% endblock %}
+
+<!--页面内容-->
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1">
+                {% if user.is_authenticated %}
+                    <ul id='myTabs' class="nav nav-tabs justify-content-center">
+                        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#seller">Seller Cart</a></li>
+                        <li class="nav-item" ><a class="nav-link" data-bs-toggle="tab" href="#buyer">Buyer Cart</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="seller">
+                            <div class="container">
+                                <div id="items" class="card shadow">
+                                    {% for item in cart.bidding.all %}
+                                        <div class="d-flex bd-highlight mb-2" style="width: 29em; height: 2em;">
+                                            <div id="bid_pk" style="display: none;">
+                                                {{ item.pk }}
+                                            </div>
+                                            <div id="bot" class="p-2 bd-highlight">
+                                                {{ item.bot }}
+                                            </div>
+                                            <div class="p-2 bd-highlight">
+                                                {{ item.start_time }}-{{ item.end_time }}
+                                            </div>
+                                            <div id="getprice" class="p-2 bd-highlight ms-auto">
+                                                {{ item.price }}
+                                            </div>
+                                            
+                                            <div id="key" class="p-2 bd-highlight ms-auto">
+                                                <select id="selected_key">
+                                                    {% for i,j in keys_list.items %}
+                                                        {% if i == item.pk %}
+                                                            {% for k in j %}
+                                                                <option>{{ k }}</option>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <button id="addkey" type="button" class="btn btn-primary" onclick="addkey(this)">Add Key</button>
+                                            
+                                        </div>
+                                    {% endfor %}
+                                    <li class="list-group-item">
+                                        <div class="row">
+                                            <div class="col text-end">
+                                                <input class="form-check-input" type="checkbox" name="flexRadioDefault" id="custom-radio-edit">
+                                                <label class="custom-label-edit" for="flexRadioDefault2">
+                                                    *All sales are final
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="row align-items-center">
+                                            <div class="col text-end">
+                                                <input class="form-check-input" type="checkbox" name="flexRadioDefault" id="custom-radio-edit">
+                                                <label class="custom-label-edit" for="flexRadioDefault2">
+                                                    *I have read and accpeted Documents
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <button id="addtocart" type="button" class="btn btn-primary" onclick="sellercart()">Submit</button>
+                                    </li>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade show" id="buyer">
+                            <div class="container">
+                                <div class="card shadow">
+                                    <form id="checkoutform" action="POST">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item">
+                                                <div class="d-flex bd-highlight mb-3" style="width: 29em; height: 2em;">
+                                                    <div class="p-2 bd-highlight">
+                                                        Bot
+                                                    </div>
+                                                    <div class="p-2 bd-highlight">
+                                                        Rental Period
+                                                    </div>
+                                                    <div class="p-2 bd-highlight ms-auto">
+                                                        Price
+                                                    </div>
+                                                </div>
+                                                {% for item in cart.listing.all %}
+                                                    <div class="d-flex bd-highlight mb-2" style="width: 29em; height: 2em;">
+                                                        <div id="pk" style="display: none;">
+                                                            {{ item.pk }}
+                                                        </div>
+                                                        <div class="p-2 bd-highlight">
+                                                            {{ item.bot }}
+                                                        </div>
+                                                        <div class="p-2 bd-highlight">
+                                                            {{ item.start_time }}-{{ item.end_time }}
+                                                        </div>
+                                                        <div id="getlistingprice" class="p-2 bd-highlight ms-auto">
+                                                            {{ item.price }}
+                                                        </div>
+                                                        <i id="delete-cart" class="bi bi-x-lg" onclick="deletecart(this)"></i>
+                                                    </div>
+                                                {% endfor %}
+                                            </li>
+                                            <li class="list-group-item">
+                                                <div class="row">
+                                                    <div class="col text-end">
+                                                        <input class="form-check-input" type="checkbox" name="flexRadioDefault" id="usepoint" onclick="usepoints()">
+                                                        <label class="custom-label-edit" for="flexRadioDefault2">
+                                                            Use 1024 Points
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col text-end">￥{{ wallet.points }} available</div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col text-end">
+                                                        <input class="form-check-input" type="checkbox" name="flexRadioDefault" id="usebalance" onclick="usebalancefunc()">
+                                                        <label class="custom-label-edit" for="flexRadioDefault2">
+                                                            Use Wallet Balance
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col text-end">￥{{ wallet.total }} available</div>
+                                                </div>
+                                                <div class="row align-items-center">
+                                                    <div class="col text-end">
+                                                        <label>
+                                                            Coupon:
+                                                        </label>
+                                                        <input type="text" placeholder="Have Coupon?">
+                                                    </div>
+                                                </div>
+                                            </li>
+                        
+                                            <li id="checkout" class="list-group-item">
+                            
+                                            </li>
+                                            <li class="list-group-item">
+                                                <div class="row">
+                                                    <div class="col text-end">
+                                                        <input class="form-check-input" type="checkbox" name="flexRadioDefault" id="custom-radio-edit">
+                                                        <label class="custom-label-edit" for="flexRadioDefault2">
+                                                            *All sales are final
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="row align-items-center">
+                                                    <div class="col text-end">
+                                                        <input class="form-check-input" type="checkbox" name="flexRadioDefault" id="custom-radio-edit">
+                                                        <label class="custom-label-edit" for="flexRadioDefault2">
+                                                            *I have read and accpeted Documents
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </form>
+                                    <img id="alipay" src="https://i.imgur.com/VIhITOh.png" onclick="order()">
+                                    <div class="modal fade" id="orderstatus-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    Order Confirmaion
+                                                </div>
+                                                <div id="modalpk" class="modal-body">
+                                                    <p>Please comfirm if you have finished payment</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-primary" onclick="unsuccess()">Cancel Payment</button>
+                                                    <button type="button" class="btn btn-primary" onclick="success()">I've completed payment</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <span>未登录，跳转到首页。。。</span>
+                    <script text='text/javascript'>
+                        window.location.href = '/'
+                    </script>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block script_expend %}
+    <script>
+        function order(){
+                var total = $.trim(($('#initprice').text()));
+                var url_name = "http://localhost:8000/cart/";
+                if($('#usepoint').is(':checked') == true){
+                    var use_points = Number($.trim($('#spanpoints').text()));
+                }
+                if($('#usepoint').is(':checked') == false){
+                    var use_points = '0';
+                }
+                if($('#usebalance').is(':checked') == true){
+                    var use_balance = Number($.trim($('#spanbalance').text()));
+                }
+                if($('#usebalance').is(':checked') == false){
+                    var use_balance = '0';
+                }
+                
+                $.ajax({
+                    url : url_name,
+                    type : 'POST',
+                    data : {
+                        'flag': 'order',
+                        'price': total,
+                        'use_points': use_points,
+                        'use_balance': use_balance,
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                    },
+                    success : function(data){
+                        $("#orderstatus-modal").modal('show');
+                        window.open(data)
+                    },
+                    error : function(xhr){
+                    }   
+                });
+            }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js" integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js" integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc" crossorigin="anonymous"></script>
+    <script>
+        jQuery(document).ready(function($) {
+        $(".clickable-row").click(function() {
+            window.location = $(this).data("href");
+            });
+        });
+
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl)
+        })
+    </script>
+    <script type="text/javascript">
+        $(window).load(function(){
+            var price = 0
+            $("div#getlistingprice").each(function(){
+                price += Number($(this).text());
+            });
+            var html =  "<div id='total' class=\"row align-items-center\">  \
+                          <div class=\"col text-end\"> \
+                          <span>Total:￥</span><span id='initprice'>" + price.toFixed(2) + "</span></div></div>";
+            $("#checkout").html(html);
+        });
+    </script>
+
+
+    <script>
+        function usepoints(){
+            if($('#usepoint').is(':checked') == true){
+                var points = {{ wallet.points|safe }};
+                var price = $.trim($('#initprice').text());
+                var result = price-points;
+                var balance = $.trim($('#spanbalance').text());
+                if(balance==''){
+                    balance = 0
+                }
+                if(Number(points)>Number(price)){
+                    result = 0;
+                    var total = 0
+                    $("div#getlistingprice").each(function(){
+                        total += Number($(this).text());
+                    });
+                    balance = Number(total)-Number(points);
+                    $('#spanbalance').html(balance);
+                }
+                var html_points =  "<div id='points' class=\"row align-items-center\">  \
+                          <div class=\"col text-end\"> \
+                          <span>Points: -￥</span><span id='spanpoints'>" + points + "</span></div></div>";
+                var html = html_points
+                if($('#usebalance').is(':checked') == true){
+                    $("#balance").before(html);
+                    if(Number(balance)<0){
+                        $('#spanpoints').html(total);
+                        $("#balance").remove();
+                    }
+                }
+                if($('#usebalance').is(':checked') == false){
+                    $("#total").before(html);
+                    if(Number(points)>Number(price)){
+                        $('#spanpoints').html(price);
+                    }
+                }
+                $('#initprice').html(result.toFixed(2));
+
+            }
+            if($('#usepoint').is(':checked') == false){
+                if($('#usebalance').is(':checked') == true){
+                    var price = 0
+                    var have_b = {{ wallet.total|safe }};
+                    $("div#getlistingprice").each(function(){
+                        price += Number($(this).text());
+                    });
+                    if(have_b>price){
+                        have_b = price
+                        price = 0
+                    }
+                    else{
+                        price = Number(price) - Number(have_b);
+                    }
+                    var balance = $.trim($('#spanbalance').text());
+                    if(balance=''){
+                        var html_points =  "<div id='balance' class=\"row align-items-center\">  \
+                          <div class=\"col text-end\"> \
+                          <span>Balance: -￥</span><span id='spanbalance'>" + have_b + "</span></div></div>";
+                        var html = html_points
+                        $("#total").before(html);
+                    }
+                    $('#spanbalance').html(have_b);
+                    $("#points").remove();
+                    $('#initprice').html(price.toFixed(2));
+                }
+                if($('#usebalance').is(':checked') == false){
+                    var price = 0
+                    $("div#getlistingprice").each(function(){
+                        price += Number($(this).text());
+                    });
+                    $("#points").remove();
+                    $('#initprice').html(price.toFixed(2));
+                }
+
+            }
+        };
+        function usebalancefunc(){
+            if($('#usebalance').is(':checked') == true){
+                var balance = {{ wallet.total|safe }};
+                var price = $.trim($('#initprice').text());
+                var result = price-balance;
+                var points = $.trim($('#spanpoints').text());
+                if(points==''){
+                    points = 0
+                }
+                var total= 0
+                    $("div#getlistingprice").each(function(){
+                        total += Number($(this).text());
+                    });
+                if((Number(points)+Number(balance))>Number(total)){
+                    result = 0;
+                    balance = Number(price)-Number(points);
+                }
+                var html_points =  "<div id='balance' class=\"row align-items-center\">  \
+                          <div class=\"col text-end\"> \
+                          <span>Balance: -￥</span><span id='spanbalance'>" + balance + "</span></div></div>";
+                var html = html_points
+                $("#total").before(html);
+                have_p = {{ wallet.points|safe }};
+                if(Number(points)<Number(have_p)){
+                    if(Number(points)!=0){
+                        $('#balance').remove();
+                    }
+                }
+                $('#initprice').html(result.toFixed(2));
+            }
+            if($('#usebalance').is(':checked') == false){
+                var price = 0
+                if($('#usepoint').is(':checked') == true){
+                    $("div#getlistingprice").each(function(){
+                        price += Number($(this).text());
+                    });
+                    var points = $.trim($('#spanpoints').text());
+                    price = price - points;
+                }
+                if($('#usepoint').is(':checked') == false){
+                    $("div#getlistingprice").each(function(){
+                        price += Number($(this).text());
+                    });
+                }
+                $("#balance").remove();
+                $('#initprice').html(price.toFixed(2));
+            }
+        };
+        $('#order-modal').on('hidden.bs.modal', function (){
+            $('#checkoutform')[0].reset();
+        });
+
+        function deletecart(obj){
+            var div = $(obj).parent()
+            var pk = $.trim(div.children('div#pk').text());
+            console.log(pk)
+            $.ajax({
+                url : "http://localhost:8000/cart/",
+                type : 'POST',
+                data : {
+                    'flag' : 'delete_cart',
+                    'pk': pk,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['success'] == 'success'){
+                        location.reload();
+                    }
+
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function sellercart(){
+            var bid_pk = []
+            var key = []
+            $('div#bid_pk').each(function(index){
+                bid_pk.push(Number($.trim($(this).text())));
+            })
+            $("select#selected_key option:selected").each(function(index){
+                key.push($(this).text());
+            })
+            $.ajax({
+                url : "http://localhost:8000/cart/",
+                type : 'POST',
+                data : {
+                    'flag' : 'get_bid',
+                    'bid_pk': JSON.stringify(bid_pk),
+                    'key': JSON.stringify(key),
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'Success'){
+                        location.reload();
+                    }
+                    if(data['status'] == 'Overlap'){
+                        alert('部分key有重叠时间，请重新选择！');
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function success(){
+            $.ajax({
+                url : "http://localhost:8000/cart/",
+                type : 'POST',
+                data : {
+                    'flag': 'check_success',
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    if(data['status'] == 'Payment Success!'){
+                        $("#orderstatus-modal").modal('hide');
+                        window.location.href = 'http://localhost:8000/user/purchase/';
+                    }
+                    if(data['status'] == 'Refund'){
+                        $("#orderstatus-modal").modal('hide');
+                        window.location.href = 'http://localhost:8000/cart/';
+                        alert('Some items in your cart is no longer exist!')
+                    }
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function unsuccess(){
+            $.ajax({
+                url : "http://localhost:8000/cart/",
+                type : 'POST',
+                data : {
+                    'flag': 'unsuccess',
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    $("#orderstatus-modal").modal('hide');
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+    </script>
+{% endblock %}
+

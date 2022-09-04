@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+
+<!--页面标题-->
+{% block title %}
+    Listing
+{% endblock %}
+
+{% block nav_botlist_active %}active{% endblock %}
+
+{% load static %}
+{% block header_extend %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'alisting.css' %}">
+{% endblock %}
+
+<!--页面内容-->
+{% block content %}
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="card shadow">
+                <div class="card-header bg-transparent"><p id="card-header">Ask</p></div>
+                <div id="listtable" class="table-responsive">
+                    <table id="listtable" class="table text-nowrap">
+                        <thead>
+                            <tr>
+                                <th scope="col">Bot</th>
+                                <th scope="col">start_time</th>
+                                <th scope="col">end_time</th>
+                                <th scope="col">price</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for listing in botlisting %}
+                                <div id="list_main">
+                                    <tr id="listingrow" onclick="list_passing(this)">
+                                        <td id="pk" style="display: none;">{{ listing.pk }}</td>
+                                        <td id="bot">{{ listing.bot }}</td>
+                                        <td id="start_time">{{ listing.start_time }}</td>
+                                        <td id="end_time">{{ listing.end_time }}</td>
+                                        <td id="price">{{ listing.price }}</td>
+                                        <td id="userinfo"><i tabindex="0" class="bi bi-file-earmark-person-fill" data-bs-toggle="popover" data-bs-placement="right" data-bs-trigger="hover focus" title="User Info" data-bs-content="Level: <br/>Refs:<br/>Timezone:" data-bs-html="true"></i></td>
+                                    </tr>
+                                    <div class="modal fade" id="list-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                        <p id="pkforcart" style="display: none;"></p>
+                                        <div class="modal-dialog">
+                                            <div id="ordermodalcontent" class="modal-content">
+                                                <div class="modal-header">
+                                                    <div class="d-flex bd-highlight mb-4" style="width: 29em; height: 2em;">
+                                                        <div class="p-2 bd-highlight">
+                                                            <img id="headerimg" class="img-rounded" src="{{ listing.img_url }}" height="80" width="80">
+                                                        </div>
+                                                        <div class="p-2 bd-highlight">
+                                                            <h4 class="modal-title" style="position: relative;bottom: -100%;left: -30%;"><p id="botname">{{ listing.bot }} Order</p></h4>
+                                                        </div>
+                                                        <div class="p-2 bd-highlight">
+                                                            <i id="ordermodal" tabindex="0" class="bi bi-file-earmark-person-fill" data-bs-toggle="popover" data-bs-placement="right" data-bs-trigger="hover focus" title="User Info" data-bs-content="Level: <br/>Refs:<br/>Timezone:" data-bs-html="true"></i>
+                                                        </div>
+                                                        <div class="ms-auto p-2 bd-highlight">
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="height: 1px;"></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form id="checkoutform" action="POST">
+                                                        <ul class="list-group list-group-flush">
+                                                            <li class="list-group-item">
+                                                                <div>Timezone: <span>{{ listing.user_timezone }}</span></div>
+                                                                <div>Level: <span>{{ listing.user_level }}</span></div>
+                                                                <div>Selling Count: <span>{{ listing.user_sellingnum }}</span></div>
+                                                                <div>Twitter Refs: <span>{{ listing.user_Refs }}</span></div>
+                                                            </li>
+                                                            <li class="list-group-item">
+                                                                <div class="d-flex bd-highlight mb-2" style="width: 29em; height: 2em;">
+                                                                    <div class="p-2 bd-highlight">
+                                                                        Rental Period
+                                                                    </div>
+                                                                    <div class="p-2 bd-highlight ms-auto">
+                                                                        Price
+                                                                    </div>
+                                                                </div>
+                                                                <div class="d-flex bd-highlight mb-2" style="width: 29em; height: 2em;">
+                                                                    <div id="time" class="p-2 bd-highlight">
+                                                                    </div>
+                                                                    <div id="getprice" class="p-2 bd-highlight ms-auto">
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <p id="get_bot" style="display: none;">{{ listing.bot }}</p>
+                                                    <button id="addtocart" type="button" class="btn btn-primary" onclick="buyercart(this)">Add to cart</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card shadow">
+                <div class="card-header bg-transparent"><p id="card-header">Bid</p></div>
+                <div id="listtable" class="table-responsive">
+                    <table id="listtable" class="table text-nowrap">
+                        <thead>
+                            <tr>
+                                <th scope="col">Bot</th>
+                                <th scope="col">start_time</th>
+                                <th scope="col">end_time</th>
+                                <th scope="col">price</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for listing in botbidding %}
+                                <div id="bid_main">
+                                    <tr id="biddingrow" onclick="bid_passing(this)">
+                                        <td id="pk" style="display: none;">{{ listing.pk }}</td>
+                                        <td id="bot">{{ listing.bot }}</td>
+                                        <td id="start_time">{{ listing.start_time }}</td>
+                                        <td id="end_time">{{ listing.end_time }}</td>
+                                        <td id="price">{{ listing.price }}</td>
+                                        <td id="userinfo"><i tabindex="0" class="bi bi-file-earmark-person-fill" data-bs-toggle="popover" data-bs-placement="right" data-bs-trigger="hover focus" title="User Info" data-bs-content="Level: <br/>Refs:<br/>Timezone:" data-bs-html="true"></i></td>
+                                    </tr>
+                                    <div class="modal fade" id="bid-modal" tabindex="-1" aria-labelledby="exampleModalLabel">
+                                        <p id="pkforcart" style="display: none;"></p>
+                                        <div class="modal-dialog">
+                                            <div id="ordermodalcontent" class="modal-content">
+                                                <div class="modal-header">
+                                                    <div class="d-flex bd-highlight mb-4" style="width: 29em; height: 2em;">
+                                                        <div class="p-2 bd-highlight">
+                                                            <img id="headerimg" class="img-rounded" src="{{ listing.img_url }}" height="80" width="80">
+                                                        </div>
+                                                        <div class="p-2 bd-highlight">
+                                                            <h4 class="modal-title" style="position: relative;bottom: -100%;left: -30%;"><p id="botname">{{ listing.bot }} Order</p></h4>
+                                                        </div>
+                                                        <div class="p-2 bd-highlight">
+                                                            <i id="ordermodal" tabindex="0" class="bi bi-file-earmark-person-fill" data-bs-toggle="popover" data-bs-placement="right" data-bs-trigger="hover focus" title="User Info" data-bs-content="Level: <br/>Refs:<br/>Timezone:" data-bs-html="true"></i>
+                                                        </div>
+                                                        <div class="ms-auto p-2 bd-highlight">
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="height: 1px;"></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form id="checkoutform" action="POST">
+                                                        <ul class="list-group list-group-flush">
+                                                            <li class="list-group-item">
+                                                                <div>Timezone: <span>{{ listing.user_timezone }}</span></div>
+                                                                <div>Level: <span>{{ listing.user_level }}</span></div>
+                                                                <div>Selling Count: <span>{{ listing.user_sellingnum }}</span></div>
+                                                                <div>Twitter Refs: <span>{{ listing.user_Refs }}</span></div>
+                                                            </li>
+                                                            <li class="list-group-item">
+                                                                <div class="d-flex bd-highlight mb-2" style="width: 29em; height: 2em;">
+                                                                    <div class="p-2 bd-highlight">
+                                                                        Rental Period
+                                                                    </div>
+                                                                    <div class="p-2 bd-highlight ms-auto">
+                                                                        Price
+                                                                    </div>
+                                                                </div>
+                                                                <div class="d-flex bd-highlight mb-2" style="width: 29em; height: 2em;">
+                                                                    <div id="time" class="p-2 bd-highlight">
+                                                                    </div>
+                                                                    <div id="getprice" class="p-2 bd-highlight ms-auto">
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <p id="get_bot" style="display: none;">{{ listing.bot }}</p>
+                                                    <button id="addtocart" type="button" class="btn btn-primary" onclick="sellercart(this)">Add to cart</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block script_expend %}
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js" integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js" integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc" crossorigin="anonymous"></script>
+    <script>
+        jQuery(document).ready(function($) {
+        $(".clickable-row").click(function() {
+            window.location = $(this).data("href");
+            });
+        });
+
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl)
+        })
+
+        function buyercart(obj){
+            var div = $(obj).parent().parent().parent().parent();
+            var listing_num = div.children('#pkforcart').text();
+            var bot = $(obj).parent().children('#get_bot').text();
+            console.log(bot)
+            $.ajax({
+                url : "http://localhost:8000/bots/listing/" + bot,
+                type : 'POST',
+                data : {
+                    'flag' : 'buyercart',
+                    'listing_num': listing_num,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    $('list-modal').modal('hide');
+                    alert(data['status']);
+
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function sellercart(obj){
+            var div = $(obj).parent().parent().parent().parent();
+            var listing_num = div.children('#pkforcart').text();
+            var bot = $(obj).parent().children('#get_bot').text();
+            console.log(bot)
+            $.ajax({
+                url : "http://localhost:8000/bots/listing/" + bot,
+                type : 'POST',
+                data : {
+                    'flag' : 'sellercart',
+                    'listing_num': listing_num,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success : function(data){
+                    $('bid-modal').modal('hide');
+                    alert(data['status']);
+
+                },
+                error : function(xhr){
+                }
+            });
+        }
+
+        function bid_passing(obj){
+            var tr = $(obj);
+            var pk = tr.children("td#pk").text();
+            var start_time = tr.children("td#start_time").text();
+            var end_time = tr.children("td#end_time").text();
+            var price = tr.children("td#price").text();  
+            $('div#time').html(start_time + '-' + end_time);   
+            $('div#getprice').html(price);  
+            $('p#pkforcart').html(pk);  
+            $('#bid-modal').modal('show');
+        }
+
+        function list_passing(obj){
+            var tr = $(obj);
+            var pk = tr.children("td#pk").text();
+            var start_time = tr.children("td#start_time").text();
+            var end_time = tr.children("td#end_time").text();
+            var price = tr.children("td#price").text();  
+            $('div#time').html(start_time + '-' + end_time);   
+            $('div#getprice').html(price);  
+            $('p#pkforcart').html(pk);  
+            $('#list-modal').modal('show');
+        }
+    </script>
+
+{% endblock %}
+
